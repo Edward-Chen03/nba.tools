@@ -12,7 +12,7 @@ dfs = pd.read_html(html_content, attrs={'id': 'per_game_stats'})
 
 if dfs:
     df = dfs[0]
-    with open('server/apiScript/nba_stats_output.txt', 'w', encoding='utf-8') as f:
+    with open('server/scraper/nba_stats_output.txt', 'w', encoding='utf-8') as f:
 
         f.write(df.to_string())
 else:
