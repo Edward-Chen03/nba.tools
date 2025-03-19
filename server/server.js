@@ -19,3 +19,12 @@ let db = mongoose.connection;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+let Player = require('./model/player.js')
+
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.on('connected', function () {
+
+  console.log("db connected!");
+
+})
