@@ -1,42 +1,35 @@
 const mongoose = require('mongoose');
 
 const playerSchema = new mongoose.Schema({
-  
-    name: {type: String},
-    team: {type: String},
-    position: {type: String},
-    gp: {type: Number},
-    gs: {type: Number},
-    mp: {type: Number},
-    fg: {type: Number},
-    fga: {type: Number},
-    fgp: {type: Number},
-    threep: {type: Number},
-    threepa: {type: Number},
-    threepap: {type: Number},
-    twop: {type: Number},
-    twopa: {type: Number},
-    twopap: {type: Number}, 
-    efgp: {type: Number},
-    ft: {type: Number},
-    fta: {type: Number},
-    ftp: {type: Number},
-    orb: {type: Number},
-    drb: {type: Number},
-    trb: {type: Number},
-    ast: {type: Number},
-    stl: {type: Number},
-    blk: {type: Number},
-    tov: {type: Number},
-    pf: {type: Number},
-    pts: {type: Number},
-    awards: {type: String}
-    
+
+
+    name: { type: String },
+    team: { type: String },
+    positions: [{ type: String }],
+    colleges: [{type: String}],
+    bbrID: {type: String},
+    birthDate: {type: Date},
+    seasons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'seasonSummary' }]  
+
 });
 
-playerSchema.virtual('url').get(function(){
+playerSchema.virtual('url').get(function () {
     return '/posts/player/' + this._id;
 });
 
+playerSchema.virtual('age').get(function () {
+    if (!this.birthDate) return null;
+  
+    const today = new Date();
+    const birthDate = new Date(this.birthDate);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+  
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+  
+    return age;
+  });
 
-module.exports = mongoose.model('Players', playerSchema);
+module.exports = mongoose.model('Player', playerSchema);
