@@ -5,6 +5,8 @@ const mongoose = require('mongoose');
 const seasonSummarySchema = new mongoose.Schema({
     
     season: {type: Number},
+    team: {type: String},
+    position: [{type: String}],
     gp: {type: Number},
     gs: {type: Number},
     mp: {type: Number},
