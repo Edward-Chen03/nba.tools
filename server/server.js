@@ -13,7 +13,7 @@ let mongoose = require('mongoose')
 app.use(express.json());
 app.use(cors());
 const port = 3000;
-mongoose.connect("mongodb+srv://nycchenedward:rpy8Q4dTTJYjVW07@nbastat.rqefx.mongodb.net/nbatools?retryWrites=true&w=majority&appName=NBAStat");
+mongoose.connect(uri);
 let db = mongoose.connection;
 
 app.listen(port, () => {
