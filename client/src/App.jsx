@@ -3,25 +3,43 @@ import "./App.css";
 
 function App() {
   const [count, setCount] = useState(0);
+  const [perGamePlayers, setPlayers] = useState([]);
+  
+  useEffect(() => {
+    
+    fetch('http://localhost:3000/seasons/2024-2025')
+      .then(response => response.json())
+      .then(data => {
+        setPlayers(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching season data:', error);
+        setLoading(false);
+      });
+  }, []);
+
+  console.log(perGamePlayers)
 
   return (
-    <>
+    <div className="app">
+    
+      <nav className="navbar">
+        <div className="navbar-logo">nba.tools</div>
+        <div className="navbar-links">
+        <a> Players </a>
+        <a> Stats </a>
+        <a> Explorer </a>
+        <a> Login </a>
+        </div>
+      </nav>
 
-      <div className="top-bar">
-
-        <h1 className="title">NBA.Tools</h1>
-        <button className="login-button">Login</button>
-
+      <div className="body-content">
+        <p> 2024-25 Statistical Leaders </p>
+        <button onClick={() => setCount(count + 1)}>Count is {count}</button>
       </div>
 
-      <div style={{ padding: "20px" }}>
-        
-        <button onClick={() => setCount(count + 1)}>count is {count}</button>
-
-      </div>
-
-    </>
-
+    </div>
   );
 }
 

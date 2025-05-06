@@ -4,12 +4,18 @@ const playerSchema = new mongoose.Schema({
 
 
     name: { type: String },
-    team: { type: String },
+    bbrID: {type: String},
+    height: {type: String},
+    weight: {type: String},
+    currentTeam: {type: String},
     positions: [{ type: String }],
     colleges: [{type: String}],
-    bbrID: {type: String},
+    status: {type: String},
+    startingSeason: {type: Number},
+    endingSeason: {type: Number},
     birthDate: {type: Date},
-    seasons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'seasonSummary' }]  
+    seasons: { type: mongoose.Schema.Types.ObjectId, ref: 'seasons' },
+    headshot_icon: { type: mongoose.Schema.Types.ObjectId }  
 
 });
 
