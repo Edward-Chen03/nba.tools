@@ -1,0 +1,208 @@
+/* Main container for the players page */
+.players-page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /* CHANGE: Removed horizontal padding to make container full-width */
+  padding: 0;
+}
+
+.players-page-container h2 {
+  text-align: center;
+  /* CHANGE: Added horizontal padding directly to the element */
+  padding: 1.5rem 2rem;
+  flex-shrink: 0;
+}
+
+/* Controls for the search input */
+.search-controls {
+  /* CHANGE: Added horizontal padding directly to the element */
+  padding: 0 2rem 1.5rem;
+  flex-shrink: 0;
+}
+
+.search-controls input {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+/* Table wrapper styled like the homepage */
+.players-table-wrapper {
+  flex-grow: 1;
+  overflow-y: auto;
+  /* CHANGE: Added horizontal padding to inset the table content */
+  padding: 0 2rem;
+}
+
+.players-table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Sticky header styled like the homepage */
+.players-table-wrapper thead {
+  position: sticky;
+  top: 0;
+  background-color: #f8f9fa;
+  z-index: 10;
+}
+
+/* Table cells styled like the homepage */
+.players-table-wrapper th,
+.players-table-wrapper td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+  vertical-align: middle;
+}
+
+/* Player cell content alignment */
+.player-cell {
+  display: flex;
+  align-items: center;
+}
+
+/* Player image styled like the homepage */
+.player-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+}
+
+/* Specific header styles for Players page */
+.players-table-wrapper .header-number {
+  width: 10%;
+  text-align: right;
+}
+
+.players-table-wrapper .header-player {
+  width: 50%;
+}
+
+.players-table-wrapper .right-align {
+  text-align: right;
+}
+
+/* Pagination controls */
+.pagination-controls {
+  flex-shrink: 0;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.pagination-controls button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 0 10px;
+}
+
+.pagination-controls button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Styles for expandable row functionality */
+.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.clickable-row:hover {
+  background-color: #f5f5f5;
+}
+
+.expanded-row > td {
+  padding: 0 !important;
+  background-color: #fdfdfd;
+  border-bottom: 2px solid #007bff;
+}
+
+.expanded-content {
+  padding: 1rem 2rem;
+}
+
+.seasons-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.season-item {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.season-item:last-child {
+  border-bottom: none;
+}
+
+.season-header {
+  padding: 0.75rem 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.season-header:hover {
+  background-color: #f0f8ff;
+}
+
+.season-stats-details {
+  padding: 0.5rem 1rem 1rem 1rem;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e0e0e0;
+}
+
+.season-stats-details p {
+  margin: 0;
+}
+
+/* Add to your existing player.css */
+
+.season-stats-details {
+  padding: 10px 15px;
+  background-color: #f9f9f9;
+  border-top: 1px solid #eee;
+}
+
+.stats-category {
+  margin-bottom: 15px;
+}
+
+.stats-category h4 {
+  margin: 0 0 5px 0;
+  font-size: 0.9em;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85em;
+}
+
+.stats-table th,
+.stats-table td {
+  text-align: center;
+  padding: 6px 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.stats-table th {
+  background-color: #f2f2f2;
+  font-weight: 600;
+}
+
+.stats-table td {
+  background-color: #fff;
+}

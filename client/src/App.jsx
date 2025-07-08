@@ -1,45 +1,34 @@
-import { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import Homepage from "./components/homepage";
+import PlayersPage from "./components/players";
+import ForesightPage from "./components/foresight";
+import ExplorerPage from "./components/explorer";
 import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0);
-  const [perGamePlayers, setPlayers] = useState([]);
-  
-  useEffect(() => {
-    
-    fetch('http://localhost:3000/seasons/2024-2025')
-      .then(response => response.json())
-      .then(data => {
-        setPlayers(data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching season data:', error);
-        setLoading(false);
-      });
-  }, []);
-
-  console.log(perGamePlayers)
-
   return (
-    <div className="app">
-    
-      <nav className="navbar">
-        <div className="navbar-logo">nba.tools</div>
-        <div className="navbar-links">
-        <a> Players </a>
-        <a> Stats </a>
-        <a> Explorer </a>
-        <a> Login </a>
+    <Router>
+      <div className="app">
+        <nav className="navbar">
+          <div className="navbar-logo">nba.tools</div>
+          <div className="navbar-links">
+            <Link to="/">Home</Link>
+            <Link to="/players">Players</Link>
+            <Link to="/explorer">Explorer</Link>
+            <Link to="/foresight">Foresight</Link>
+          </div>
+        </nav>
+
+        <div className="body-content">
+          <Routes>
+            <Route path="/" element={<Homepage />} />
+            <Route path="/players" element={<PlayersPage />} />
+            <Route path="/explorer" element={<ExplorerPage />} />
+            <Route path="/foresight" element={<ForesightPage />} />
+          </Routes>
         </div>
-      </nav>
-
-      <div className="body-content">
-        <p> 2024-25 Statistical Leaders </p>
-        <button onClick={() => setCount(count + 1)}>Count is {count}</button>
       </div>
-
-    </div>
+    </Router>
   );
 }
 
