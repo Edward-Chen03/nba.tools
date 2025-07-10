@@ -324,7 +324,6 @@ app.get('/player/icon/:id', async (req, res) => {
     if (!file) {
       return res.status(404).send('Image not found');
     }
-    console.log("Preparing image file...")
     res.set('Content-Type', file.contentType || 'image/jpeg');
 
     const downloadStream = gfsBucket.openDownloadStream(fileId);
@@ -335,7 +334,7 @@ app.get('/player/icon/:id', async (req, res) => {
     });
 
     downloadStream.pipe(res);
-    console.log("Image file sent!")
+
   } catch (err) {
     console.error("Invalid image ID:", err);
     res.status(400).send("Invalid image ID");

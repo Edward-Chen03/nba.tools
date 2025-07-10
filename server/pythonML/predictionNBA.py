@@ -3,6 +3,15 @@ import numpy as np
 import os
 from pymongo import MongoClient
 from lightgbm import LGBMClassifier
+import operator
+
+op_map = {
+    ">": operator.gt,
+    "<": operator.lt,
+    ">=": operator.ge,
+    "<=": operator.le,
+    "==": operator.eq
+}
 
 def convert_min_str_to_float(min_str):
     try:
@@ -60,13 +69,20 @@ def predict_player_multistat(
     df['days_rest'] = df['date'].diff().dt.days.fillna(0)
 
     condition_expr = []
-    for stat, thresh in stat_thresholds:
+    for threshold in stat_thresholds:
+        stat = threshold["key"]
+        op = threshold.get("op", ">")
+        value = threshold["value"]
+
         if stat not in df.columns:
             raise ValueError(f"Stat '{stat}' not found in data.")
-        condition_expr.append(df[stat] > thresh)
+        if op not in op_map:
+            raise ValueError(f"Unsupported operator '{op}' for stat '{stat}'.")
+
+        condition_expr.append(op_map[op](df[stat], value))
 
     combined_target = np.logical_and.reduce(condition_expr).astype(int)
-    label_suffix = "_and_".join([f"{s}_gt_{t}" for s, t in stat_thresholds])
+    label_suffix = "_and_".join([f"{t['key']}_{t['op'].replace('>', 'gt').replace('<', 'lt').replace('=', 'eq')}_{t['value']}" for t in stat_thresholds])
     target_col = f"target_{label_suffix}"
     df[target_col] = combined_target
 
@@ -93,7 +109,7 @@ def predict_player_multistat(
 
     model.fit(X_train[features], y_train)
 
-    label = " AND ".join([f"{s} > {t}" for s, t in stat_thresholds])
+    label = " AND ".join([f"{t['key'].upper()} {t['op']} {t['value']}" for t in stat_thresholds])
     recent_averages = df[features].iloc[-1].to_dict()
 
     played_games = df[df['mp'].notna() & (df['mp'] > 0)]

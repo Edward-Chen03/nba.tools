@@ -163,7 +163,7 @@ function ExplorerPage() {
                         <aside className="filters-sidebar">
                             {selectedStats.map((s, index) => (
                                 <div key={s.id} className="filter-row">
-                                    <label>{`Filter #${index + 1}`}</label>
+                                    <label>{`Statistic #${index + 1}`}</label>
                                     <div className="select-with-remove">
                                         <Select
                                             value={s.stat}
