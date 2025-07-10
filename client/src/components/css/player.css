@@ -1,22 +1,17 @@
-/* Main container for the players page */
 .players-page-container {
   display: flex;
   flex-direction: column;
   height: 100%;
-  /* CHANGE: Removed horizontal padding to make container full-width */
   padding: 0;
 }
 
 .players-page-container h2 {
   text-align: center;
-  /* CHANGE: Added horizontal padding directly to the element */
   padding: 1.5rem 2rem;
   flex-shrink: 0;
 }
 
-/* Controls for the search input */
 .search-controls {
-  /* CHANGE: Added horizontal padding directly to the element */
   padding: 0 2rem 1.5rem;
   flex-shrink: 0;
 }
@@ -30,11 +25,9 @@
   border: 1px solid #ccc;
 }
 
-/* Table wrapper styled like the homepage */
 .players-table-wrapper {
   flex-grow: 1;
   overflow-y: auto;
-  /* CHANGE: Added horizontal padding to inset the table content */
   padding: 0 2rem;
 }
 
@@ -43,7 +36,6 @@
   border-collapse: collapse;
 }
 
-/* Sticky header styled like the homepage */
 .players-table-wrapper thead {
   position: sticky;
   top: 0;
@@ -51,7 +43,6 @@
   z-index: 10;
 }
 
-/* Table cells styled like the homepage */
 .players-table-wrapper th,
 .players-table-wrapper td {
   padding: 0.75rem 1rem;
@@ -60,13 +51,11 @@
   vertical-align: middle;
 }
 
-/* Player cell content alignment */
 .player-cell {
   display: flex;
   align-items: center;
 }
 
-/* Player image styled like the homepage */
 .player-image {
   width: 40px;
   height: 40px;
@@ -75,7 +64,6 @@
   object-fit: cover;
 }
 
-/* Specific header styles for Players page */
 .players-table-wrapper .header-number {
   width: 10%;
   text-align: right;
@@ -89,7 +77,6 @@
   text-align: right;
 }
 
-/* Pagination controls */
 .pagination-controls {
   flex-shrink: 0;
   padding: 1.5rem;
@@ -111,7 +98,6 @@
   cursor: not-allowed;
 }
 
-/* Styles for expandable row functionality */
 .clickable-row {
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
@@ -164,8 +150,6 @@
 .season-stats-details p {
   margin: 0;
 }
-
-/* Add to your existing player.css */
 
 .season-stats-details {
   padding: 10px 15px;

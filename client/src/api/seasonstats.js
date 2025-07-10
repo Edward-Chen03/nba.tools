@@ -9,7 +9,7 @@ export function useLeaderboardStats(page, limit) {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://localhost:3000/hometable?page=${page}&limit=${limit}`)
+    fetch(`${apiURL}hometable?page=${page}&limit=${limit}`)
       .then((res) => res.json())
       .then((data) => {
         setLeaderboard(data);
@@ -34,7 +34,7 @@ export function useAlphabetPlayerStats(page, limit, search) {
 
   useEffect(() => {
     setLoading(true);
-    const url = new URL("http://localhost:3000/playerstable");
+    const url = new URL(`${apiURL}playerstable`);
     url.searchParams.append("page", page);
     url.searchParams.append("limit", limit);
     if (search) url.searchParams.append("search", search);
@@ -58,7 +58,7 @@ export function useAlphabetPlayerStats(page, limit, search) {
 }
 
 export async function fetchPlayerSeasons(bbrID) {
-  const response = await fetch(`http://localhost:3000/players/${bbrID}/seasons`);
+  const response = await fetch(`${apiURL}players/${bbrID}/seasons`);
   if (!response.ok) {
     throw new Error("Failed to fetch seasons");
   }

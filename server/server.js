@@ -51,7 +51,7 @@ let Season = require('./model/seasons.js')
 
 app.get("/hometable", async (req, res) => {
   try {
-    console.log("Fetching paginated leaderboard stats...");
+    console.log("Fetching leaderboard stats...");
 
     const seasonYear = parseInt(req.query.season) || 2025;
     const page = parseInt(req.query.page) || 1;
@@ -129,9 +129,9 @@ app.get("/hometable", async (req, res) => {
     ]);
 
     res.send(topSeasons);
-    console.log(`Sent leaderboard stats page ${page}`);
+    console.log(`Sent leaderboard stats page ${page}!`);
   } catch (err) {
-    console.error("Error fetching paginated season stats:", err);
+    console.error("Error fetching season stats:", err);
     res.status(500).send("Failed to fetch leaderboard data.");
   }
 });
@@ -140,7 +140,7 @@ app.get("/hometable", async (req, res) => {
 
 app.get("/playerstable", async (req, res) => {
   try {
-    console.log("Fetching paginated player stats...");
+    console.log("Fetching player stats...");
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
@@ -157,7 +157,7 @@ app.get("/playerstable", async (req, res) => {
       .lean();
 
     res.send(players);
-    console.log(`Sent player stats page ${page}`);
+    console.log(`Sent player stats page ${page}!`);
   } catch (err) {
     console.error("Error fetching players:", err);
     res.status(500).send("Failed to fetch players.");
@@ -177,14 +177,14 @@ app.get("/players/:bbrID/seasons", async (req, res) => {
     }
 
     res.send(player.seasons); 
-    console.log("Sent season player stats...");
+    console.log("Sent season player stats!");
   } catch (err) {
     console.error("Error fetching player seasons:", err);
     res.status(500).send("Failed to fetch player seasons.");
   }
 });
 
-// Customized Stats Table
+// Explorer Table
 
 
 app.post("/customstats", async (req, res) => {
@@ -275,14 +275,44 @@ app.post("/customstats", async (req, res) => {
     ]);
 
     res.send(topSeasons);
-    console.log(`Sent dynamic leaderboard for season ${season}, page ${page}`);
+    console.log(`Sent leaderboard for season ${season}, page ${page}!`);
   } catch (err) {
     console.error("Error in /customstats:", err);
     res.status(500).send("Failed to fetch custom stat leaderboard.");
   }
 });
 
-// Explorer
+// Foresight
+
+app.post("/predict", async (req, res) => {
+  try {
+    const { bbrID, season, statThresholds } = req.body;
+
+    if (!bbrID || !Array.isArray(statThresholds) || statThresholds.length === 0) {
+      return res.status(400).send("Missing required fields: bbrID and statThresholds");
+    }
+    console.log("Preparing parameters for prediction...")
+    const response = await fetch("https://nba-toolsml.onrender.com/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bbrID, season, statThresholds })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("Python API error:", errText);
+      return res.status(500).send("Prediction service failed.");
+    }
+
+    const predictionResult = await response.json();
+    res.json(predictionResult);
+
+    console.log("Sent prediction result!")
+  } catch (err) {
+    console.error("Error in /predict proxy:", err);
+    res.status(500).send("Failed to fetch prediction results");
+  }
+});
 
 // Player Icons
 
@@ -294,7 +324,7 @@ app.get('/player/icon/:id', async (req, res) => {
     if (!file) {
       return res.status(404).send('Image not found');
     }
-
+    console.log("Preparing image file...")
     res.set('Content-Type', file.contentType || 'image/jpeg');
 
     const downloadStream = gfsBucket.openDownloadStream(fileId);
@@ -305,7 +335,7 @@ app.get('/player/icon/:id', async (req, res) => {
     });
 
     downloadStream.pipe(res);
-
+    console.log("Image file sent!")
   } catch (err) {
     console.error("Invalid image ID:", err);
     res.status(400).send("Invalid image ID");

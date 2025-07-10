@@ -1,9 +1,4 @@
-/*
- Main container for the homepage.
- - It fills its parent (.body-content) completely.
- - Flexbox organizes its children (title, table, pagination) vertically.
- - overflow: hidden prevents the entire page from scrolling.
-*/
+
 .homepage-container {
   display: flex;
   flex-direction: column;
@@ -12,23 +7,16 @@
   overflow: hidden;
 }
 
-/* Give the title and pagination some breathing room */
 .homepage-container h2,
 .pagination-controls {
-  flex-shrink: 0; /* Prevent these from shrinking */
+  flex-shrink: 0;
   padding: 1.5rem;
   text-align: center;
 }
 
-/*
- This wrapper for the table is the key to the layout.
- - flex-grow: 1 makes it expand to fill all available vertical space.
- - CHANGE: overflow-y: auto will now automatically add a scrollbar
-   ONLY if the table content is taller than the available space.
-*/
 .leaderboard-table {
   flex-grow: 1;
-  overflow-y: auto; /* Reverted to auto for conditional scrolling */
+  overflow-y: auto; 
   padding: 0 1rem;
 }
 
@@ -37,7 +25,6 @@
   border-collapse: collapse;
 }
 
-/* Makes the table header stick to the top of the scrollable area */
 .leaderboard-table thead {
   background-color: #f8f9fa;
   position: sticky;
@@ -46,7 +33,7 @@
 
 .leaderboard-table th,
 .leaderboard-table td {
-  padding: 0.75rem 1rem; /* Reverted to a fixed padding */
+  padding: 0.75rem 1rem; 
   text-align: left;
   border-bottom: 1px solid #e0e0e0;
 }
@@ -57,14 +44,13 @@
 }
 
 .player-image {
-  width: 40px; /* Reverted to original size */
+  width: 40px; 
   height: 40px;
   border-radius: 50%;
   margin-right: 10px;
   object-fit: cover;
 }
 
-/* Styling for pagination buttons */
 .pagination-controls button {
     background-color: #007bff;
     color: white;

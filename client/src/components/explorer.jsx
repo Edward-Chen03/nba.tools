@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { fetchCustomStats } from "../api/customstats";
-// Import both API functions
 import { fetchAllPlayers, fetchPlayerSeasonStats } from "../api/playerobjects";
 import "./css/explorer.css";
 
@@ -14,10 +13,8 @@ const directionOptions = [
     { label: "Ascending (Low is Better)", value: "asc" }
 ];
 
-function StatsPage() {
+function ExplorerPage() {
     const [view, setView] = useState('explorer');
-
-    // --- State for Explorer View ---
     const [selectedStats, setSelectedStats] = useState([
         { id: Date.now(), stat: null, direction: directionOptions[0] }
     ]);
@@ -25,8 +22,6 @@ function StatsPage() {
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
     const [season] = useState(2025);
-
-    // --- State for Comparison View ---
     const [playerOptions, setPlayerOptions] = useState([]);
     const [playersLoading, setPlayersLoading] = useState(true);
     const [playerOne, setPlayerOne] = useState(null);
@@ -41,7 +36,7 @@ function StatsPage() {
             const playersData = await fetchAllPlayers();
             
             const formattedPlayers = playersData.map(player => ({
-                // ✅ Use bbrID for the value to match the API endpoint
+
                 value: player.bbrID, 
                 label: player.name
             }));
@@ -165,7 +160,6 @@ function StatsPage() {
             <main className="stats-main-content">
                  {view === 'explorer' ? (
                     <>
-                        {/* The Explorer view JSX remains unchanged */}
                         <aside className="filters-sidebar">
                             {selectedStats.map((s, index) => (
                                 <div key={s.id} className="filter-row">
@@ -313,4 +307,4 @@ function StatsPage() {
     );
 }
 
-export default StatsPage;
+export default ExplorerPage;
