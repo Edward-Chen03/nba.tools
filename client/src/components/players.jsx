@@ -66,8 +66,6 @@ function PlayersPage() {
     }));
   };
 
-  console.log(seasonsData)
-
   return (
     <div className="players-page-container">
       <h2>Browse Players</h2>

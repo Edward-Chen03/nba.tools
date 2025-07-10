@@ -93,22 +93,22 @@ def predict_player_multistat(
 
     model.fit(X_train[features], y_train)
 
-    y_pred = model.predict(X_test[features])
-    y_proba = model.predict_proba(X_test[features])[:, 1]
+    label = " AND ".join([f"{s} > {t}" for s, t in stat_thresholds])
+    recent_averages = df[features].iloc[-1].to_dict()
 
-    fi = pd.DataFrame({
-        'feature': features,
-        'importance': model.feature_importances_
-    }).sort_values('importance', ascending=False)
+    played_games = df[df['mp'].notna() & (df['mp'] > 0)]
+    last5_games = played_games[['date', 'pts', 'trb', 'ast']].tail(5).copy()
+    last5_games['date'] = last5_games['date'].dt.strftime('%Y-%m-%d')
+    last5 = last5_games.to_dict(orient="records")
 
     next_game_features = df[features].iloc[[-1]]
     next_game_prob = model.predict_proba(next_game_features)[0, 1]
-    label = " AND ".join([f"{s} > {t}" for s, t in stat_thresholds])
 
     return {
         "player_id": bbrID,
         "season": season,
         "target_description": label,
         "probability": round(next_game_prob, 4),
-        "top_features": fi.head(10).to_dict(orient="records")
+        "recent_rolling_averages": recent_averages,
+        "last_5_games": last5,
     }
