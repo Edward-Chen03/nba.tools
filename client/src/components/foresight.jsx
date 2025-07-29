@@ -3,6 +3,20 @@ import Select from "react-select";
 import { fetchAllPlayers } from "../api/playerobjects";
 import { predictPlayerOutcome } from "../api/foresight";
 import "./css/foresight.css";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Box
+} from "@mui/material";
 
 function ForesightPage() {
   const [selectedStat, setSelectedStat] = useState(null);
@@ -140,51 +154,66 @@ function ForesightPage() {
             </div>
 
             {result && (
-              <div className="prediction-result" style={{ marginTop: "2rem" }}>
-                <h3>Prediction Result</h3>
-                <p><strong>Target:</strong> {result.target_description}</p>
-                <p><strong>Probability:</strong> {(result.probability * 100).toFixed(1)}%</p>
+              <Box mt={4}>
+                <Card elevation={3}>
+                  <CardContent>
+                    <Typography variant="h5" gutterBottom>
+                      Prediction Result
+                    </Typography>
 
-                <div style={{ marginTop: "1.5rem" }}>
-                  <h4>Rolling Averages of the Last 10 Games</h4>
-                  <ul style={{ paddingLeft: "1rem" }}>
-                    {Object.entries(result.recent_rolling_averages || {})
-                      .filter(([key]) => key.endsWith("_last10_avg"))
-                      .map(([key, value]) => {
-                        const statLabel = key.replace("_last10_avg", "").toUpperCase();
-                        return (
-                          <li key={key}>
-                            <strong>{statLabel}:</strong> {typeof value === "number" ? value.toFixed(2) : value}
-                          </li>
-                        );
-                      })}
-                  </ul>
-                </div>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={6}>
+                        <Typography variant="subtitle1"><strong>Target:</strong> {result.target_description}</Typography>
+                        <Typography variant="subtitle1"><strong>Probability:</strong> {(result.probability * 100).toFixed(1)}%</Typography>
+                      </Grid>
+                    </Grid>
 
-                <div style={{ marginTop: "1.5rem" }}>
-                  <h4>Last 5 Games</h4>
-                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                    <thead>
-                      <tr>
-                        <th style={{ textAlign: "left", paddingBottom: "0.5rem" }}>Date</th>
-                        <th style={{ textAlign: "right" }}>PTS</th>
-                        <th style={{ textAlign: "right" }}>TRB</th>
-                        <th style={{ textAlign: "right" }}>AST</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {result.last_5_games.map((game, idx) => (
-                        <tr key={idx}>
-                          <td>{game.date}</td>
-                          <td style={{ textAlign: "right" }}>{game.pts}</td>
-                          <td style={{ textAlign: "right" }}>{game.trb}</td>
-                          <td style={{ textAlign: "right" }}>{game.ast}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                    <Box mt={3}>
+                      <Typography variant="h6">Rolling Averages (Last 10 Games)</Typography>
+                      <Grid container spacing={2} mt={1}>
+                        {Object.entries(result.recent_rolling_averages || {})
+                          .filter(([key]) => key.endsWith("_last10_avg"))
+                          .map(([key, value]) => {
+                            const statLabel = key.replace("_last10_avg", "").toUpperCase();
+                            return (
+                              <Grid item xs={6} sm={4} key={key}>
+                                <Typography>
+                                  <strong>{statLabel}:</strong> {typeof value === "number" ? value.toFixed(2) : value}
+                                </Typography>
+                              </Grid>
+                            );
+                          })}
+                      </Grid>
+                    </Box>
+
+                    <Box mt={4}>
+                      <Typography variant="h6" gutterBottom>Last 5 Games</Typography>
+                      <TableContainer component={Paper}>
+                        <Table>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Date</TableCell>
+                              <TableCell align="right">PTS</TableCell>
+                              <TableCell align="right">TRB</TableCell>
+                              <TableCell align="right">AST</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {result.last_5_games.map((game, idx) => (
+                              <TableRow key={idx}>
+                                <TableCell>{game.date}</TableCell>
+                                <TableCell align="right">{game.pts}</TableCell>
+                                <TableCell align="right">{game.trb}</TableCell>
+                                <TableCell align="right">{game.ast}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Box>
             )}
           </div>
         </div>

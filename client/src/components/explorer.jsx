@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import Select from "react-select";
-import { fetchAllPlayers, fetchCustomStats, fetchPlayerSeasonStats, PLAYER_ICON_URL } from "../api/playerobjects";
+import {
+    fetchAllPlayers,
+    fetchCustomStats,
+    fetchPlayerSeasonStats,
+    PLAYER_ICON_URL
+} from "../api/playerobjects";
 import "./css/explorer.css";
 import {
     ResponsiveContainer,
@@ -9,8 +14,7 @@ import {
     YAxis,
     CartesianGrid,
     Tooltip,
-    Scatter,
-    Legend
+    Scatter
 } from "recharts";
 import { Card, CardContent, Typography } from "@mui/material";
 
@@ -31,48 +35,23 @@ const xAxisOptions = [
 ];
 
 function ExplorerPage() {
-
     const [view, setView] = useState("explorer");
     const [loadingComparison, setLoadingComparison] = useState(false);
 
     const [selectedStats, setSelectedStats] = useState([{ id: Date.now(), stat: null }]);
     const [xAxisOption, setXAxisOption] = useState(xAxisOptions[0]);
     const [season] = useState(2025);
+    const [analyzing, setAnalyzing] = useState(false);
+    const [committedSelectedStats, setCommittedSelectedStats] = useState([]);
+    const [committedXAxisOption, setCommittedXAxisOption] = useState(xAxisOptions[0]);
 
     const [selectedStatGroup, setSelectedStatGroup] = useState(statGroups[0]);
     const [customStatsResult, setCustomStatsResult] = useState([]);
-    const [analyzing, setAnalyzing] = useState(false);
-
     const [playerOptions, setPlayerOptions] = useState([]);
     const [playersLoading, setPlayersLoading] = useState(true);
     const [playerOne, setPlayerOne] = useState(null);
     const [playerTwo, setPlayerTwo] = useState(null);
     const [comparisonResult, setComparisonResult] = useState(null);
-
-    const categorySet = new Set(
-        customStatsResult.map(player =>
-            Array.isArray(player.xAxis) ? player.xAxis.join(", ") : player.xAxis
-        )
-    );
-    const categoryMap = Array.from(categorySet).reduce((acc, label, index) => {
-        acc[label] = index + 1;
-        return acc;
-    }, {});
-    const allXValues = Object.values(categoryMap);
-    const chartData = customStatsResult.map(player => {
-        const xLabel = Array.isArray(player.xAxis)
-            ? player.xAxis.join(", ")
-            : player.xAxis;
-
-        return {
-            x: categoryMap[xLabel],
-            xLabel,
-            y: player.total ?? 0,
-            name: player.name,
-            headshot: player.headshot,
-            id: player.player_bbrID
-        };
-    });
 
     useEffect(() => {
         const loadPlayers = async () => {
@@ -95,10 +74,7 @@ function ExplorerPage() {
     };
 
     const handleCompare = async () => {
-        if (!playerOne || !playerTwo) {
-            alert("Please select two players to compare.");
-            return;
-        }
+        if (!playerOne || !playerTwo) return;
 
         setLoadingComparison(true);
         setComparisonResult(null);
@@ -110,8 +86,7 @@ function ExplorerPage() {
             ]);
 
             if (!playerOneStats || !playerTwoStats) {
-                alert("Could not find ${ season } stats for one or both players.");
-                setLoadingComparison(false);
+                alert(`Could not find ${season} stats for one or both players.`);
                 return;
             }
 
@@ -128,7 +103,7 @@ function ExplorerPage() {
                 }
             });
         } catch (error) {
-            alert("An error occurred while comparing players. Please try again.");
+            alert("An error occurred while comparing players.");
         } finally {
             setLoadingComparison(false);
         }
@@ -159,6 +134,7 @@ function ExplorerPage() {
     const handleAnalyze = async () => {
         setAnalyzing(true);
         setCustomStatsResult([]);
+
         try {
             const statsPayload = selectedStats
                 .filter(s => s.stat)
@@ -166,6 +142,9 @@ function ExplorerPage() {
 
             const result = await fetchCustomStats(season, statsPayload, xAxisOption.value);
             setCustomStatsResult(result);
+
+            setCommittedSelectedStats([...selectedStats]);
+            setCommittedXAxisOption(xAxisOption);
         } catch (err) {
             console.error("Error analyzing custom stats:", err);
             alert("Failed to fetch custom stats.");
@@ -175,8 +154,34 @@ function ExplorerPage() {
     };
 
 
+    const isCategorical = committedXAxisOption.value === "position" || committedXAxisOption.value === "team";
 
-    console.log(customStatsResult)
+    const categorySet = new Set(
+        customStatsResult.map(player =>
+            Array.isArray(player.xAxis) ? player.xAxis.join(", ") : player.xAxis
+        )
+    );
+    const categoryMap = Array.from(categorySet).reduce((acc, label, index) => {
+        acc[label] = index + 1;
+        return acc;
+    }, {});
+
+    const allXValues = Object.values(categoryMap);
+
+    const chartData = customStatsResult.map(player => {
+        const xLabel = Array.isArray(player.xAxis)
+            ? player.xAxis.join(", ")
+            : player.xAxis;
+
+        return {
+            x: isCategorical ? categoryMap[xLabel] : player.xAxis,
+            xLabel,
+            y: parseFloat((player.total ?? 0).toFixed(1)),
+            name: player.name,
+            headshot: player.headshot,
+            id: player.player_bbrID
+        };
+    });
 
     return (
         <div className="stats-explorer-container">
@@ -214,9 +219,7 @@ function ExplorerPage() {
                                             className="stat-select"
                                         />
                                         {selectedStats.length > 1 && (
-                                            <button className="remove-btn" onClick={() => removeDropdown(s.id)}>
-                                                ×
-                                            </button>
+                                            <button className="remove-btn" onClick={() => removeDropdown(s.id)}>×</button>
                                         )}
                                     </div>
                                 </div>
@@ -233,7 +236,6 @@ function ExplorerPage() {
                                     value={xAxisOption}
                                     onChange={setXAxisOption}
                                     options={xAxisOptions}
-                                    placeholder="Select X-Axis"
                                     className="stat-select"
                                 />
                             </div>
@@ -249,41 +251,57 @@ function ExplorerPage() {
                         </aside>
 
                         <div className="content-panel">
-                            {customStatsResult.length > 0 && selectedStats[0]?.stat?.value ? (
+                            {customStatsResult.length > 0 ? (
                                 <Card sx={{ margin: "1rem 0", padding: "1rem" }}>
                                     <CardContent>
                                         <Typography variant="h6" gutterBottom>
-                                            {`Scatter Plot: Total (${selectedStats.map(s => s.stat?.label || '').join(' + ')}) vs ${xAxisOption.label}`
-                                            }
+                                            {`Scatter Plot: Total (${committedSelectedStats.map(s => s.stat?.label || '').join(' + ')}) vs ${committedXAxisOption.label}`}
                                         </Typography>
                                         <ResponsiveContainer width="100%" height={400}>
-                                            <ScatterChart>
+                                            <ScatterChart margin={{ top: 20, right: 40, bottom: 40, left: 40 }}>
                                                 <CartesianGrid />
                                                 <XAxis
                                                     dataKey="x"
                                                     type="number"
-                                                    domain={['dataMin', 'dataMax']}
-                                                    ticks={allXValues} 
-                                                    tickFormatter={(x) =>
-                                                        Object.entries(categoryMap).find(([label, val]) => val === x)?.[0] ?? x
+                                                    domain={
+                                                        isCategorical
+                                                            ? undefined
+                                                            : ([min, max]) => {
+                                                                const roundedMin = Math.floor(min / 5) * 5 - 5;
+                                                                const roundedMax = Math.ceil(max / 5) * 5 + 5;
+                                                                return [roundedMin, roundedMax];
+                                                            }
                                                     }
+                                                    ticks={isCategorical ? allXValues : undefined}
+                                                    tickFormatter={isCategorical
+                                                        ? (x) => Object.entries(categoryMap).find(([label, val]) => val === x)?.[0] ?? x
+                                                        : undefined}
                                                     allowDecimals={false}
                                                     interval={0}
                                                     tick={{ fontSize: 12 }}
-                                                    angle={-45}
-                                                    textAnchor="end"
+                                                    angle={isCategorical ? -45 : 0}
+                                                    textAnchor={isCategorical ? "end" : "middle"}
+                                                    label={{
+                                                        value: committedXAxisOption.label,
+                                                        position: "bottom",
+                                                        offset: 10
+                                                    }}
                                                 />
-
 
                                                 <YAxis
                                                     dataKey="y"
-                                                    name={`Total (${selectedStats.map(s => s.stat?.label).join(' + ')})`}
+                                                    name="Total"
                                                     label={{
-                                                        value: `Total (${selectedStats.map(s => s.stat?.label).join(' + ')})`,
+                                                        value: `Total (${committedSelectedStats.map(s => s.stat?.label).join(' + ')})`,
                                                         angle: -90,
                                                         position: "insideLeft"
                                                     }}
-                                                    domain={['dataMin - 2', 'dataMax + 2']}
+                                                    domain={([min, max]) => {
+                                                        const roundedMin = Math.floor(min / 5) * 5 - 5;
+                                                        const roundedMax = Math.ceil(max / 5) * 5 + 5;
+                                                        return [roundedMin, roundedMax];
+                                                    }}
+                                                    allowDecimals={false}
                                                 />
                                                 <Tooltip
                                                     cursor={{ strokeDasharray: '3 3' }}
@@ -293,9 +311,8 @@ function ExplorerPage() {
                                                             return (
                                                                 <div style={{ background: "#fff", border: "1px solid #ccc", padding: "8px" }}>
                                                                     <div><strong>Player:</strong> {p.name}</div>
-                                                                    <div><strong>{xAxisOption.label}:</strong> {p.x}</div>
-                                                                    <div><strong>Total ({selectedStats.map(s => s.stat?.label).join(' + ')}):</strong> {p.y}</div>
-
+                                                                    <div><strong>{committedXAxisOption.label}:</strong> {p.xLabel}</div>
+                                                                    <div><strong>Total:</strong> {p.y}</div>
                                                                 </div>
                                                             );
                                                         }
@@ -308,7 +325,6 @@ function ExplorerPage() {
                                                     shape={({ cx, cy, payload }) => {
                                                         const size = 40;
                                                         const radius = size / 2;
-
                                                         return (
                                                             <g>
                                                                 <clipPath id={`clip-${payload.id}`}>
@@ -345,8 +361,6 @@ function ExplorerPage() {
                                     <p>You can compare players by adding and customizing filters on the left.</p>
                                 </div>
                             )}
-
-
                         </div>
                     </>
                 ) : (

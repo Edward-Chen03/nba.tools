@@ -3,6 +3,7 @@ import { useAlphabetPlayerStats, fetchPlayerSeasons } from "../api/seasonstats";
 import "./css/player.css";
 import StatsTable from "./def/playertables"; 
 
+
 function PlayersPage() {
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
