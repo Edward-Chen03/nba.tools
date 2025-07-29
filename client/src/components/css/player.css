@@ -3,24 +3,27 @@
   flex-direction: column;
   height: 100%;
   padding: 0;
+  align-items: center;
+  box-sizing: border-box;
 }
 
 .players-page-container h2 {
   text-align: center;
-  padding: 1.5rem 2rem;
-  flex-shrink: 0;
+  padding: 1rem;
+  font-size: 1.2rem;
 }
 
 .search-controls {
-  padding: 0 2rem 1.5rem;
-  flex-shrink: 0;
+  padding: 0 1.5rem 1rem;
+  width: 100%;
+  max-width: 960px;
 }
 
 .search-controls input {
   width: 100%;
   max-width: 400px;
-  padding: 0.75rem;
-  font-size: 1rem;
+  padding: 0.5rem;
+  font-size: 0.9rem;
   border-radius: 5px;
   border: 1px solid #ccc;
 }
@@ -28,12 +31,15 @@
 .players-table-wrapper {
   flex-grow: 1;
   overflow-y: auto;
-  padding: 0 2rem;
+  padding: 0 1rem;
+  width: 100%;
+  max-width: 1400px;
 }
 
 .players-table-wrapper table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: auto;
 }
 
 .players-table-wrapper thead {
@@ -45,22 +51,24 @@
 
 .players-table-wrapper th,
 .players-table-wrapper td {
-  padding: 0.75rem 1rem;
+  padding: 0.4rem 0.6rem;
   text-align: left;
+  font-size: 0.85rem;
   border-bottom: 1px solid #e0e0e0;
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 .player-cell {
   display: flex;
   align-items: center;
+  gap: 6px;
 }
 
 .player-image {
-  width: 40px;
-  height: 40px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  margin-right: 10px;
   object-fit: cover;
 }
 
@@ -79,7 +87,7 @@
 
 .pagination-controls {
   flex-shrink: 0;
-  padding: 1.5rem;
+  padding: 1rem;
   text-align: center;
 }
 
@@ -87,10 +95,11 @@
   background-color: #007bff;
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
   border-radius: 5px;
   cursor: pointer;
-  margin: 0 10px;
+  margin: 0 8px;
 }
 
 .pagination-controls button:disabled {
@@ -114,7 +123,7 @@
 }
 
 .expanded-content {
-  padding: 1rem 2rem;
+  padding: 1rem;
 }
 
 .seasons-list {
@@ -132,8 +141,9 @@
 }
 
 .season-header {
-  padding: 0.75rem 0.5rem;
+  padding: 0.5rem;
   cursor: pointer;
+  font-size: 0.85rem;
   transition: background-color 0.2s ease-in-out;
 }
 
@@ -142,19 +152,12 @@
 }
 
 .season-stats-details {
-  padding: 0.5rem 1rem 1rem 1rem;
+  padding: 0.75rem 1rem 1rem;
   background-color: #f8f9fa;
   border-top: 1px solid #e0e0e0;
-}
-
-.season-stats-details p {
-  margin: 0;
-}
-
-.season-stats-details {
-  padding: 10px 15px;
-  background-color: #f9f9f9;
-  border-top: 1px solid #eee;
+  overflow-x: auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .stats-category {
@@ -163,7 +166,7 @@
 
 .stats-category h4 {
   margin: 0 0 5px 0;
-  font-size: 0.9em;
+  font-size: 0.85rem;
   color: #333;
   border-bottom: 1px solid #ddd;
   padding-bottom: 5px;
@@ -171,15 +174,18 @@
 
 .stats-table {
   width: 100%;
+  table-layout: auto;
   border-collapse: collapse;
-  font-size: 0.85em;
+  font-size: 0.8rem;
 }
 
 .stats-table th,
 .stats-table td {
   text-align: center;
-  padding: 6px 4px;
+  padding: 4px 6px;
   border: 1px solid #e0e0e0;
+  word-wrap: break-word;
+  white-space: nowrap;
 }
 
 .stats-table th {

@@ -38,15 +38,18 @@ function Homepage() {
               {leaderboardStats.map((player, index) => (
                 <tr key={player.player_bbrID}>
                   <td>{(page - 1) * limit + index + 1}</td>
-                  <td className="player-cell">
-                    {player.playerObject.headshot_icon ? (
-                      <img
-                        className="player-image"
-                        src={`http://localhost:3000/player/icon/${player.playerObject.headshot_icon}`}
-                        alt={`${player.playerObject.name} headshot`}
-                      />
-                    ) : null}
-                    {player.playerObject.name}
+                  <td>
+                    <div className="player-cell">
+                      {player.playerObject.headshot_icon && (
+                        <img
+                          className="player-image"
+                          src={`http://localhost:3000/player/icon/${player.playerObject.headshot_icon}`}
+                          alt={`${player.playerObject.name} headshot`}
+                          onError={(e) => { e.target.style.visibility = 'hidden'; }}
+                        />
+                      )}
+                      <span className="player-name-text">{player.playerObject.name}</span>
+                    </div>
                   </td>
                   <td>{player.playerObject.currentTeam}</td>
                   <td>{player.per_game?.pts}</td>

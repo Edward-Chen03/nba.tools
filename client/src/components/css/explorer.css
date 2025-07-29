@@ -285,3 +285,91 @@
     margin-top: 1rem;
     flex-shrink: 0; 
 }
+
+.advanced-comparison-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 2rem;
+  border: 1px solid #dcdfe6;
+  border-radius: 10px;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.player-block {
+  flex: 1 1 200px;
+  text-align: center;
+}
+
+.player-block h3 {
+  margin-top: 0.75rem;
+  font-size: 1.25rem;
+  color: #0052cc;
+}
+
+.player-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #dcdfe6;
+}
+
+.comparison-table {
+  flex: 2 1 300px;
+  text-align: center;
+}
+
+.comparison-table h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: #1c1e21;
+}
+
+.comparison-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.comparison-table td {
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.stat-name {
+  font-weight: 600;
+  color: #43464a;
+}
+
+.stat-cell {
+  font-weight: bold;
+  width: 100px;
+}
+
+.stat-cell.highlight {
+  background-color: #e6f4ea;
+  color: #22863a;
+  border-radius: 6px;
+}
+
+.comparison-table-scroll-wrapper {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.comparison-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.comparison-table td {
+  padding: 8px;
+  text-align: center;
+  white-space: nowrap;
+}

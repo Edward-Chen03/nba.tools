@@ -104,7 +104,7 @@ app.get("/hometable", async (req, res) => {
       { $limit: limit },
       {
         $lookup: {
-          from: "players",         
+          from: "players",
           localField: "player_bbrID",
           foreignField: "bbrID",
           as: "playerObject"
@@ -123,7 +123,7 @@ app.get("/hometable", async (req, res) => {
           team: 1,
           per_game: 1,
           totalContribution: 1,
-          playerObject: 1  
+          playerObject: 1
         }
       }
     ]);
@@ -169,14 +169,14 @@ app.get("/players/:bbrID/seasons", async (req, res) => {
     const { bbrID } = req.params;
     console.log("Fetching season player stats...");
     const player = await Player.findOne({ bbrID })
-      .populate("seasons") 
+      .populate("seasons")
       .lean();
 
     if (!player) {
       return res.status(404).send("Player not found");
     }
 
-    res.send(player.seasons); 
+    res.send(player.seasons);
     console.log("Sent season player stats!");
   } catch (err) {
     console.error("Error fetching player seasons:", err);
@@ -186,96 +186,85 @@ app.get("/players/:bbrID/seasons", async (req, res) => {
 
 // Explorer Table
 
-
 app.post("/customstats", async (req, res) => {
   try {
-    console.log("Preparing custom stats...")
-
     const {
       season = 2025,
       page = 1,
       limit = 20,
-      stats = [
-        { key: "pts", direction: "desc" },
-        { key: "trb", direction: "desc" },
-        { key: "ast", direction: "desc" }
-      ]
+      stats = [],
+      xAxis = ""
     } = req.body;
 
-    const skip = (page - 1) * limit;
+    if (!Array.isArray(stats) || stats.length === 0) {
+      return res.status(400).send("Missing or invalid 'stats' array.");
+    }
 
-    const contributionExpr = stats.map(stat =>
-      stat.direction === "desc"
-        ? `$seasons.per_game.${stat.key}`
-        : { $multiply: [`$seasons.per_game.${stat.key}`, -1] }
-    );
+    const xAxisFieldMap = {
+      games_played: "$seasons.per_game.gp",
+      team: "$seasons.team",
+      position: "$seasons.position"
+    };
 
-    const topSeasons = await Season.aggregate([
+    const xAxisField = xAxisFieldMap[xAxis] || null;
+
+    const totalExpression = {
+      $add: stats.map(stat => ({
+        $ifNull: [`$seasons.per_game.${stat.key.toLowerCase()}`, 0]
+      }))
+    };
+
+    const projectFields = {
+      player_bbrID: 1,
+      season: "$seasons.season",
+      per_game: "$seasons.per_game",
+      total: totalExpression,
+      gp: "$seasons.per_game.gp"
+    };
+
+    if (xAxisField) {
+      projectFields.xAxis = xAxisField;
+    }
+
+    const pipeline = [
       { $unwind: "$seasons" },
-
-      {
-        $match: {
-          "seasons.season": parseInt(season),
-          "seasons.per_game.gp": { $gte: 50 }
-        }
-      },
-
-      {
-        $addFields: {
-          totalContribution: { $add: contributionExpr }
-        }
-      },
-
+      { $match: { "seasons.season": season } },
+      { $project: projectFields },
+      { $sort: { player_bbrID: 1, gp: -1 } }, 
       {
         $group: {
           _id: "$player_bbrID",
-          bestSeason: { $first: "$seasons" },
-          totalContribution: { $max: "$totalContribution" }
+          doc: { $first: "$$ROOT" } 
         }
       },
+      { $replaceRoot: { newRoot: "$doc" } },
+      { $sort: { total: -1 } },
+      { $skip: (page - 1) * limit },
+      { $limit: limit }
+    ];
 
-      {
-        $project: {
-          player_bbrID: "$_id",
-          season: "$bestSeason.season",
-          team: "$bestSeason.team",
-          per_game: "$bestSeason.per_game",
-          totalContribution: 1
-        }
-      },
+    const results = await Season.aggregate(pipeline).exec();
 
-      { $sort: { totalContribution: -1 } },
-      { $skip: skip },
-      { $limit: parseInt(limit) },
+    const playerIDs = results.map(r => r.player_bbrID);
 
-      {
-        $lookup: {
-          from: "players",
-          localField: "player_bbrID",
-          foreignField: "bbrID",
-          as: "playerObject"
-        }
-      },
-      {
-        $unwind: {
-          path: "$playerObject",
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $project: {
-          player_bbrID: 1,
-          season: 1,
-          team: 1,
-          per_game: 1,
-          totalContribution: 1,
-          playerObject: 1
-        }
-      }
-    ]);
+    const players = await Player.find(
+      { bbrID: { $in: playerIDs } },
+      { bbrID: 1, name: 1, headshot_icon: 1 }
+    ).lean();
 
-    res.send(topSeasons);
-    console.log(`Sent leaderboard for season ${season}, page ${page}!`);
+    const playerMap = players.reduce((acc, player) => {
+      acc[player.bbrID] = player;
+      return acc;
+    }, {});
+
+    const enrichedResults = results.map(r => ({
+      ...r,
+      name: playerMap[r.player_bbrID]?.name || null,
+      headshot: playerMap[r.player_bbrID]?.headshot_icon || null
+    }));
+
+    res.json(enrichedResults);
+
   } catch (err) {
     console.error("Error in /customstats:", err);
     res.status(500).send("Failed to fetch custom stat leaderboard.");
