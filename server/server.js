@@ -4,7 +4,6 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const bcrypt = require('bcrypt');
 const { MongoClient, ServerApiVersion, ObjectId, GridFSBucket } = require('mongodb');
 const uri = process.env.NBAMONGO;
 let mongoose = require('mongoose')
