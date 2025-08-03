@@ -1,5 +1,8 @@
 import React, { useState, useEffect, Fragment } from "react";
-import { useAlphabetPlayerStats, fetchPlayerSeasons } from "../api/seasonstats";
+import { 
+  useAlphabetPlayerStats, 
+  fetchPlayerSeasons } 
+  from "../api/seasonstats";
 import "./css/player.css";
 import StatsTable from "./def/playertables"; 
 
