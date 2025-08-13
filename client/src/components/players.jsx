@@ -60,7 +60,7 @@ function PlayersPage() {
       <Box className="search-controls">
         <TextField
           fullWidth
-          placeholder="🔍 Search players by name..."
+          placeholder=" Search players by name..."
           variant="outlined"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
