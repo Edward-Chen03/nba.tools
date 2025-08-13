@@ -1,198 +1,474 @@
+/* Enhanced Players Page Styles */
 .players-page-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  padding: 0;
   align-items: center;
+  padding: 1rem 1.5rem;
   box-sizing: border-box;
+  height: calc(100vh - 60px);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
 }
 
-.players-page-container h2 {
+/* Background pattern overlay */
+.players-page-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.players-page-container > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Header styling */
+.players-heading {
   text-align: center;
-  padding: 1rem;
-  font-size: 1.2rem;
+  font-size: 1.8rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 1rem !important;
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.5px;
+  flex-shrink: 0;
 }
 
+/* Search controls */
 .search-controls {
-  padding: 0 1.5rem 1rem;
   width: 100%;
-  max-width: 960px;
+  max-width: 600px;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.search-controls input {
+.search-input {
   width: 100%;
-  max-width: 400px;
-  padding: 0.5rem;
-  font-size: 0.9rem;
-  border-radius: 5px;
-  border: 1px solid #ccc;
 }
 
-.players-table-wrapper {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding: 0 1rem;
+/* Loading container */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 1400px;
+  max-width: 1200px;
 }
 
-.players-table-wrapper table {
+/* Main table container */
+.players-table {
   width: 100%;
-  border-collapse: collapse;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  /* Remove flex: 1 so table can size based on content */
+}
+
+/* Dynamic table sizing based on content */
+.players-table.has-few-results {
+  flex: 0 0 auto;
+}
+
+.players-table.has-many-results {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Fix Material-UI Paper border radius and remove white background */
+.players-table .MuiPaper-root {
+  border-radius: 20px !important;
+  overflow: hidden !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+}
+
+.players-table.has-few-results .MuiPaper-root {
+  flex: 0 0 auto;
+  height: auto;
+}
+
+.players-table.has-many-results .MuiPaper-root {
+  flex: 1;
+  height: 100%;
+}
+
+.players-table .MuiTableContainer-root {
+  border-radius: 20px !important;
+  background: transparent !important;
+}
+
+.players-table.has-few-results .MuiTableContainer-root {
+  overflow: visible !important;
+  flex: 0 0 auto;
+}
+
+.players-table.has-many-results .MuiTableContainer-root {
+  overflow: auto !important;
+  flex: 1;
+  height: 100%;
+}
+
+/* Table styling */
+.players-table table,
+.players-table .MuiTable-root {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
   table-layout: auto;
+  background: transparent !important;
+  height: 100%;
 }
 
-.players-table-wrapper thead {
+.players-table tbody,
+.players-table .MuiTableBody-root {
+  height: 100%;
+}
+
+.players-table thead,
+.players-table .MuiTableHead-root {
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
   position: sticky;
   top: 0;
-  background-color: #f8f9fa;
-  z-index: 10;
+  z-index: 2;
 }
 
-.players-table-wrapper th,
-.players-table-wrapper td {
-  padding: 0.4rem 0.6rem;
-  text-align: left;
-  font-size: 0.85rem;
-  border-bottom: 1px solid #e0e0e0;
+.players-table th,
+.players-table .MuiTableCell-head {
+  padding: 0.7rem 0.8rem !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  text-align: left !important;
+  color: #ffffff !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   vertical-align: middle;
   white-space: nowrap;
+  border-bottom: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+.players-table th:first-child,
+.players-table .MuiTableCell-head:first-child {
+  text-align: center !important;
+  width: 50px;
+  border-top-left-radius: 20px;
+}
+
+.players-table th:last-child,
+.players-table .MuiTableCell-head:last-child {
+  border-top-right-radius: 20px;
+}
+
+.players-table td,
+.players-table .MuiTableCell-body {
+  padding: 0.7rem 0.8rem !important;
+  font-size: 0.85rem !important;
+  text-align: left !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+  vertical-align: middle;
+  transition: all 0.2s ease;
+  background: transparent !important;
+}
+
+.players-table td:first-child,
+.players-table .MuiTableCell-body:first-child {
+  text-align: center !important;
+  font-weight: 600;
+  color: #667eea;
+  font-size: 0.9rem !important;
+}
+
+/* Remove border from last row to eliminate gap */
+.players-table tbody tr:last-child td,
+.players-table .MuiTableBody-root .MuiTableRow-root:last-child .MuiTableCell-body {
+  border-bottom: none !important;
+}
+
+.players-table tbody tr:last-child td:first-child,
+.players-table .MuiTableBody-root .MuiTableRow-root:last-child .MuiTableCell-body:first-child {
+  border-bottom-left-radius: 20px;
+}
+
+.players-table tbody tr:last-child td:last-child,
+.players-table .MuiTableBody-root .MuiTableRow-root:last-child .MuiTableCell-body:last-child {
+  border-bottom-right-radius: 20px;
+}
+
+/* Row hover effects */
+.players-table tbody tr,
+.players-table .MuiTableBody-root .MuiTableRow-root {
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+}
+
+.players-table tbody tr:hover,
+.players-table .MuiTableBody-root .MuiTableRow-root:hover,
+.clickable-row:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.players-table tbody tr:nth-child(even),
+.players-table .MuiTableBody-root .MuiTableRow-root:nth-child(even) {
+  background: rgba(248, 250, 252, 0.8);
+}
+
+.players-table tbody tr:nth-child(even):hover,
+.players-table .MuiTableBody-root .MuiTableRow-root:nth-child(even):hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)) !important;
+}
+
+/* Player cell styling */
+.players-table th:nth-child(2),
+.players-table td:nth-child(2),
+.players-table .MuiTableCell-head:nth-child(2),
+.players-table .MuiTableCell-body:nth-child(2) {
+  min-width: 180px;
 }
 
 .player-cell {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 12px;
+  font-weight: 600;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.player-image {
-  width: 28px;
-  height: 28px;
+.player-name-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #2d3748;
+  font-size: 0.9rem;
+}
+
+/* Enhanced player image */
+.player-image,
+.players-table .MuiAvatar-root {
+  width: 45px !important;
+  height: 45px !important;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid #ffffff;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
 }
 
-.players-table-wrapper .header-number {
-  width: 10%;
-  text-align: right;
+.players-table tbody tr:hover .player-image,
+.players-table tbody tr:hover .MuiAvatar-root,
+.players-table .MuiTableBody-root .MuiTableRow-root:hover .MuiAvatar-root {
+  transform: scale(1.1);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
 }
 
-.players-table-wrapper .header-player {
-  width: 50%;
+/* Team column */
+.players-table td:nth-child(3),
+.players-table .MuiTableCell-body:nth-child(3) {
+  color: #718096;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem !important;
 }
 
-.players-table-wrapper .right-align {
-  text-align: right;
-}
-
+/* Pagination controls */
 .pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0;
+  gap: 1.2rem;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0.6rem 1.5rem;
+  border-radius: 50px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   flex-shrink: 0;
-  padding: 1rem;
-  text-align: center;
+  height: 40px;
 }
 
-.pagination-controls button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 6px 14px;
-  font-size: 0.85rem;
-  border-radius: 5px;
+/* Pagination button styling */
+.pagination-controls button,
+.pagination-controls .MuiButton-root {
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  color: white !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  border-radius: 20px !important;
   cursor: pointer;
-  margin: 0 8px;
+  transition: all 0.3s ease !important;
+  text-transform: none !important;
+  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3) !important;
+  min-width: 80px !important;
 }
 
-.pagination-controls button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
+.pagination-controls button:hover,
+.pagination-controls .MuiButton-root:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+  background: linear-gradient(135deg, #5a6fd8, #6b4c93) !important;
 }
 
-.clickable-row {
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
+.pagination-controls button:disabled,
+.pagination-controls .MuiButton-root:disabled {
+  background: linear-gradient(135deg, #cbd5e0, #a0aec0) !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
-.clickable-row:hover {
-  background-color: #f5f5f5;
-}
-
-.expanded-row > td {
-  padding: 0 !important;
-  background-color: #fdfdfd;
-  border-bottom: 2px solid #007bff;
-}
-
-.expanded-content {
-  padding: 1rem;
-}
-
-.seasons-list {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-
-.season-item {
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.season-item:last-child {
-  border-bottom: none;
-}
-
-.season-header {
-  padding: 0.5rem;
-  cursor: pointer;
-  font-size: 0.85rem;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.season-header:hover {
-  background-color: #f0f8ff;
-}
-
-.season-stats-details {
-  padding: 0.75rem 1rem 1rem;
-  background-color: #f8f9fa;
-  border-top: 1px solid #e0e0e0;
-  overflow-x: auto;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.stats-category {
-  margin-bottom: 15px;
-}
-
-.stats-category h4 {
-  margin: 0 0 5px 0;
-  font-size: 0.85rem;
-  color: #333;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 5px;
-}
-
-.stats-table {
-  width: 100%;
-  table-layout: auto;
-  border-collapse: collapse;
-  font-size: 0.8rem;
-}
-
-.stats-table th,
-.stats-table td {
-  text-align: center;
-  padding: 4px 6px;
-  border: 1px solid #e0e0e0;
-  word-wrap: break-word;
-  white-space: nowrap;
-}
-
-.stats-table th {
-  background-color: #f2f2f2;
+.pagination-page {
+  font-size: 0.95rem;
   font-weight: 600;
+  color: #2d3748;
+  padding: 0 0.8rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 15px;
+  padding: 6px 16px;
 }
 
-.stats-table td {
-  background-color: #fff;
+/* Remove border from last row */
+.players-table tbody tr:last-child td,
+.players-table .MuiTableBody-root .MuiTableRow-root:last-child .MuiTableCell-body {
+  border-bottom: none !important;
+}
+
+.players-table tbody tr:last-child td:first-child,
+.players-table .MuiTableBody-root .MuiTableRow-root:last-child .MuiTableCell-body:first-child {
+  border-bottom-left-radius: 20px;
+}
+
+.players-table tbody tr:last-child td:last-child,
+.players-table .MuiTableBody-root .MuiTableRow-root:last-child .MuiTableCell-body:last-child {
+  border-bottom-right-radius: 20px;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .players-page-container {
+    padding: 1.5rem 1rem;
+  }
+  
+  .players-heading {
+    font-size: 2rem !important;
+  }
+  
+  .players-table {
+    border-radius: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .players-page-container {
+    padding: 1rem 0.5rem;
+  }
+  
+  .players-heading {
+    font-size: 1.8rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+  
+  .search-controls {
+    max-width: 100%;
+    margin-bottom: 1.5rem;
+  }
+  
+  .players-table th,
+  .players-table td,
+  .players-table .MuiTableCell-head,
+  .players-table .MuiTableCell-body {
+    padding: 0.8rem 0.6rem !important;
+    font-size: 0.85rem !important;
+  }
+  
+  .player-cell {
+    gap: 12px;
+  }
+  
+  .player-image,
+  .players-table .MuiAvatar-root {
+    width: 45px !important;
+    height: 45px !important;
+  }
+  
+  .pagination-controls {
+    padding: 0.8rem 1.5rem;
+    gap: 1rem;
+  }
+  
+  .pagination-controls button,
+  .pagination-controls .MuiButton-root {
+    padding: 10px 20px !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .player-name-text {
+    font-size: 0.9rem;
+  }
+  
+  .players-table th:nth-child(2),
+  .players-table td:nth-child(2),
+  .players-table .MuiTableCell-head:nth-child(2),
+  .players-table .MuiTableCell-body:nth-child(2) {
+    min-width: 200px;
+  }
+}
+
+/* Loading animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.players-table {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* Performance optimizations */
+.players-table tbody tr,
+.players-table .MuiTableBody-root .MuiTableRow-root {
+  will-change: transform;
+}
+
+.player-image,
+.players-table .MuiAvatar-root {
+  will-change: transform;
 }

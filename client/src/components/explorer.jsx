@@ -1,11 +1,6 @@
 import { useState, useEffect } from "react";
 import Select from "react-select";
-import {
-    fetchAllPlayers,
-    fetchCustomStats,
-    fetchPlayerSeasonStats,
-    PLAYER_ICON_URL
-} from "../api/playerobjects";
+import {fetchAllPlayers, fetchCustomStats, fetchPlayerSeasonStats, PLAYER_ICON_URL} from "../api/playerobjects";
 import "./css/explorer.css";
 import {
     ResponsiveContainer,
@@ -36,33 +31,29 @@ const xAxisOptions = [
 
 function ExplorerPage() {
     const [view, setView] = useState("explorer");
-    const [loadingComparison, setLoadingComparison] = useState(false);
-
     const [selectedStats, setSelectedStats] = useState([{ id: Date.now(), stat: null }]);
     const [xAxisOption, setXAxisOption] = useState(xAxisOptions[0]);
-    const [season] = useState(2025);
     const [analyzing, setAnalyzing] = useState(false);
-    const [committedSelectedStats, setCommittedSelectedStats] = useState([]);
-    const [committedXAxisOption, setCommittedXAxisOption] = useState(xAxisOptions[0]);
+    const [customStatsResult, setCustomStatsResult] = useState([]);
 
     const [selectedStatGroup, setSelectedStatGroup] = useState(statGroups[0]);
-    const [customStatsResult, setCustomStatsResult] = useState([]);
     const [playerOptions, setPlayerOptions] = useState([]);
     const [playersLoading, setPlayersLoading] = useState(true);
     const [playerOne, setPlayerOne] = useState(null);
     const [playerTwo, setPlayerTwo] = useState(null);
     const [comparisonResult, setComparisonResult] = useState(null);
+    const [loadingComparison, setLoadingComparison] = useState(false);
+
+    const season = 2025; 
 
     useEffect(() => {
         const loadPlayers = async () => {
-            setPlayersLoading(true);
             const playersData = await fetchAllPlayers();
-            const formattedPlayers = playersData.map(player => ({
+            setPlayerOptions(playersData.map(player => ({
                 value: player.bbrID,
                 label: player.name,
                 headshot: player.headshot_icon
-            }));
-            setPlayerOptions(formattedPlayers);
+            })));
             setPlayersLoading(false);
         };
         loadPlayers();
@@ -125,26 +116,17 @@ function ExplorerPage() {
         setSelectedStats(prev => prev.filter(s => s.id !== id));
     };
 
-    const statOptions = availableStats.map(stat => ({
-        label: stat,
-        value: stat,
-        isDisabled: selectedStats.some(s => s.stat?.value === stat)
-    }));
-
     const handleAnalyze = async () => {
+        const validStats = selectedStats.filter(s => s.stat);
+        if (validStats.length === 0) return;
+
         setAnalyzing(true);
         setCustomStatsResult([]);
 
         try {
-            const statsPayload = selectedStats
-                .filter(s => s.stat)
-                .map(s => ({ key: s.stat.value }));
-
+            const statsPayload = validStats.map(s => ({ key: s.stat.value }));
             const result = await fetchCustomStats(season, statsPayload, xAxisOption.value);
             setCustomStatsResult(result);
-
-            setCommittedSelectedStats([...selectedStats]);
-            setCommittedXAxisOption(xAxisOption);
         } catch (err) {
             console.error("Error analyzing custom stats:", err);
             alert("Failed to fetch custom stats.");
@@ -153,35 +135,65 @@ function ExplorerPage() {
         }
     };
 
+    const generateChartData = () => {
+        const isCategorical = ["position", "team"].includes(xAxisOption.value);
+        
+        if (!isCategorical) {
+            return {
+                chartData: customStatsResult.map(player => ({
+                    x: player.xAxis,
+                    xLabel: player.xAxis,
+                    y: parseFloat((player.total ?? 0).toFixed(1)),
+                    name: player.name,
+                    headshot: player.headshot,
+                    id: player.player_bbrID
+                })),
+                isCategorical: false
+            };
+        }
 
-    const isCategorical = committedXAxisOption.value === "position" || committedXAxisOption.value === "team";
-
-    const categorySet = new Set(
-        customStatsResult.map(player =>
-            Array.isArray(player.xAxis) ? player.xAxis.join(", ") : player.xAxis
-        )
-    );
-    const categoryMap = Array.from(categorySet).reduce((acc, label, index) => {
-        acc[label] = index + 1;
-        return acc;
-    }, {});
-
-    const allXValues = Object.values(categoryMap);
-
-    const chartData = customStatsResult.map(player => {
-        const xLabel = Array.isArray(player.xAxis)
-            ? player.xAxis.join(", ")
-            : player.xAxis;
+        const categoryLabels = [...new Set(
+            customStatsResult.map(player =>
+                Array.isArray(player.xAxis) ? player.xAxis.join(", ") : player.xAxis
+            )
+        )];
+        
+        const categoryMap = categoryLabels.reduce((acc, label, index) => {
+            acc[label] = index + 1;
+            return acc;
+        }, {});
 
         return {
-            x: isCategorical ? categoryMap[xLabel] : player.xAxis,
-            xLabel,
-            y: parseFloat((player.total ?? 0).toFixed(1)),
-            name: player.name,
-            headshot: player.headshot,
-            id: player.player_bbrID
+            chartData: customStatsResult.map(player => {
+                const xLabel = Array.isArray(player.xAxis)
+                    ? player.xAxis.join(", ")
+                    : player.xAxis;
+                return {
+                    x: categoryMap[xLabel],
+                    xLabel,
+                    y: parseFloat((player.total ?? 0).toFixed(1)),
+                    name: player.name,
+                    headshot: player.headshot,
+                    id: player.player_bbrID
+                };
+            }),
+            categoryMap,
+            isCategorical: true
         };
-    });
+    };
+
+    const { chartData, categoryMap, isCategorical } = customStatsResult.length > 0 
+        ? generateChartData() 
+        : { chartData: [], categoryMap: {}, isCategorical: false };
+
+    const statOptions = availableStats.map(stat => ({
+        label: stat,
+        value: stat,
+        isDisabled: selectedStats.some(s => s.stat?.value === stat)
+    }));
+
+    const validSelectedStats = selectedStats.filter(s => s.stat);
+    const statsLabel = validSelectedStats.map(s => s.stat.label).join(' + ');
 
     return (
         <div className="stats-explorer-container">
@@ -224,6 +236,7 @@ function ExplorerPage() {
                                     </div>
                                 </div>
                             ))}
+                            
                             <div className="action-buttons">
                                 {selectedStats.length < 5 && (
                                     <button onClick={addDropdown}>Add Filter</button>
@@ -243,7 +256,7 @@ function ExplorerPage() {
                             <div className="analyze-button-container">
                                 <button
                                     onClick={handleAnalyze}
-                                    disabled={analyzing || selectedStats.every(s => !s.stat)}
+                                    disabled={analyzing || validSelectedStats.length === 0}
                                 >
                                     {analyzing ? "Analyzing..." : "Analyze"}
                                 </button>
@@ -251,11 +264,11 @@ function ExplorerPage() {
                         </aside>
 
                         <div className="content-panel">
-                            {customStatsResult.length > 0 ? (
+                            {chartData.length > 0 ? (
                                 <Card sx={{ margin: "1rem 0", padding: "1rem" }}>
                                     <CardContent>
                                         <Typography variant="h6" gutterBottom>
-                                            {`Scatter Plot: Total (${committedSelectedStats.map(s => s.stat?.label || '').join(' + ')}) vs ${committedXAxisOption.label}`}
+                                            {`Scatter Plot: Total (${statsLabel}) vs ${xAxisOption.label}`}
                                         </Typography>
                                         <ResponsiveContainer width="100%" height={400}>
                                             <ScatterChart margin={{ top: 20, right: 40, bottom: 40, left: 40 }}>
@@ -263,16 +276,11 @@ function ExplorerPage() {
                                                 <XAxis
                                                     dataKey="x"
                                                     type="number"
-                                                    domain={
-                                                        isCategorical
-                                                            ? undefined
-                                                            : ([min, max]) => {
-                                                                const roundedMin = Math.floor(min / 5) * 5 - 5;
-                                                                const roundedMax = Math.ceil(max / 5) * 5 + 5;
-                                                                return [roundedMin, roundedMax];
-                                                            }
-                                                    }
-                                                    ticks={isCategorical ? allXValues : undefined}
+                                                    domain={isCategorical ? undefined : ([min, max]) => [
+                                                        Math.floor(min / 5) * 5 - 5,
+                                                        Math.ceil(max / 5) * 5 + 5
+                                                    ]}
+                                                    ticks={isCategorical ? Object.values(categoryMap) : undefined}
                                                     tickFormatter={isCategorical
                                                         ? (x) => Object.entries(categoryMap).find(([label, val]) => val === x)?.[0] ?? x
                                                         : undefined}
@@ -282,25 +290,23 @@ function ExplorerPage() {
                                                     angle={isCategorical ? -45 : 0}
                                                     textAnchor={isCategorical ? "end" : "middle"}
                                                     label={{
-                                                        value: committedXAxisOption.label,
+                                                        value: xAxisOption.label,
                                                         position: "bottom",
                                                         offset: 10
                                                     }}
                                                 />
-
                                                 <YAxis
                                                     dataKey="y"
                                                     name="Total"
                                                     label={{
-                                                        value: `Total (${committedSelectedStats.map(s => s.stat?.label).join(' + ')})`,
+                                                        value: `Total (${statsLabel})`,
                                                         angle: -90,
                                                         position: "insideLeft"
                                                     }}
-                                                    domain={([min, max]) => {
-                                                        const roundedMin = Math.floor(min / 5) * 5 - 5;
-                                                        const roundedMax = Math.ceil(max / 5) * 5 + 5;
-                                                        return [roundedMin, roundedMax];
-                                                    }}
+                                                    domain={([min, max]) => [
+                                                        Math.floor(min / 5) * 5 - 5,
+                                                        Math.ceil(max / 5) * 5 + 5
+                                                    ]}
                                                     allowDecimals={false}
                                                 />
                                                 <Tooltip
@@ -311,7 +317,7 @@ function ExplorerPage() {
                                                             return (
                                                                 <div style={{ background: "#fff", border: "1px solid #ccc", padding: "8px" }}>
                                                                     <div><strong>Player:</strong> {p.name}</div>
-                                                                    <div><strong>{committedXAxisOption.label}:</strong> {p.xLabel}</div>
+                                                                    <div><strong>{xAxisOption.label}:</strong> {p.xLabel}</div>
                                                                     <div><strong>Total:</strong> {p.y}</div>
                                                                 </div>
                                                             );

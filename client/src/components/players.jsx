@@ -1,22 +1,30 @@
-import React, { useState, useEffect, Fragment } from "react";
-import { 
-  useAlphabetPlayerStats, 
-  fetchPlayerSeasons } 
-  from "../api/seasonstats";
+import React, { useState, useEffect } from "react";
+import { useAlphabetPlayerStats } from "../api/seasonstats";
+import { useNavigate } from "react-router-dom";
+import {
+  Box,
+  TextField,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Typography,
+  Avatar,
+  CircularProgress,
+} from "@mui/material";
 import "./css/player.css";
-import StatsTable from "./def/playertables"; 
-
 
 function PlayersPage() {
+  const navigate = useNavigate();
+
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
-  const limit = 15;
-
-  const [seasonsData, setSeasonsData] = useState({});
-  const [expandedPlayer, setExpandedPlayer] = useState(null);
-  
-  const [expandedSeasons, setExpandedSeasons] = useState({});
+  const limit = 8; 
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
@@ -28,134 +36,113 @@ function PlayersPage() {
 
   const { playerStats, loading, hasMore } = useAlphabetPlayerStats(page, limit, search);
 
-  const handlePrev = () => { if (page > 1) setPage(prev => prev - 1); };
-  const handleNext = () => { if (hasMore) setPage(prev => prev + 1); };
+  const hasFewResults = playerStats.length <= 3;
+  const tableClassName = `players-table ${hasFewResults ? 'has-few-results' : 'has-many-results'}`;
 
-  const handlePlayerClick = async (bbrID) => {
-    if (expandedPlayer === bbrID) {
-      setExpandedPlayer(null);
-      return;
-    }
-
-    setExpandedPlayer(bbrID);
-    setExpandedSeasons({}); 
-
-    if (!seasonsData[bbrID]) {
-      setSeasonsData(prev => ({ ...prev, [bbrID]: { loading: true } }));
-      try {
-        const apiResponse = await fetchPlayerSeasons(bbrID);
-        const seasonsArray = apiResponse.seasons;
-        setSeasonsData(prev => ({ ...prev, [bbrID]: { loaded: true, seasons: seasonsArray } }));
-      } catch (error) {
-        setSeasonsData(prev => ({ ...prev, [bbrID]: { error: true, message: "Failed to load seasons." } }));
-      }
-    }
+  const handlePrev = () => {
+    if (page > 1) setPage((prev) => prev - 1);
   };
 
-  const handleSeasonClick = (playerId, seasonId) => {
-    const currentExpandedForPlayer = expandedSeasons[playerId] || [];
-    const isCurrentlyExpanded = currentExpandedForPlayer.includes(seasonId);
+  const handleNext = () => {
+    if (hasMore) setPage((prev) => prev + 1);
+  };
 
-    let newExpandedForPlayer;
-
-    if (isCurrentlyExpanded) {
-      newExpandedForPlayer = currentExpandedForPlayer.filter(id => id !== seasonId);
-    } else {
-      newExpandedForPlayer = [...currentExpandedForPlayer, seasonId];
-    }
-
-    setExpandedSeasons(prev => ({
-      ...prev,
-      [playerId]: newExpandedForPlayer
-    }));
+  const handlePlayerClick = (bbrID) => {
+    navigate(`/player/${bbrID}`);
   };
 
   return (
-    <div className="players-page-container">
-      <h2>Browse Players</h2>
-      <div className="search-controls">
-        <input
-          type="text"
-          placeholder="Search players by name..."
+    <Box className="players-page-container">
+      <Typography variant="h4" component="h1" className="players-heading">
+        Browse Players
+      </Typography>
+
+      <Box className="search-controls">
+        <TextField
+          fullWidth
+          placeholder="🔍 Search players by name..."
+          variant="outlined"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
+          className="search-input"
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '25px',
+              color: '#ffffff',
+              '& fieldset': {
+                borderColor: 'rgba(255, 255, 255, 0.3)',
+              },
+              '&:hover fieldset': {
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: 'rgba(255, 255, 255, 0.7)',
+              },
+            },
+            '& .MuiInputBase-input::placeholder': {
+              color: 'rgba(255, 255, 255, 0.7)',
+              opacity: 1,
+            },
+          }}
         />
-      </div>
+      </Box>
 
       {loading && page === 1 ? (
-        <p>Loading...</p>
+        <Box className="loading-container">
+          <CircularProgress sx={{ color: '#ffffff' }} />
+        </Box>
       ) : (
-        <div className="players-table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th className="header-number">#</th>
-                <th className="header-player">Player</th>
-                <th>Team</th>
-              </tr>
-            </thead>
-            <tbody>
+        <TableContainer component={Paper} className={tableClassName}>
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell>#</TableCell>
+                <TableCell>Player</TableCell>
+                <TableCell>Team</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {playerStats.map((player, index) => (
-                <Fragment key={player.bbrID}>
-                  <tr className="clickable-row" onClick={() => handlePlayerClick(player.bbrID)}>
-                    <td className="right-align">{(page - 1) * limit + index + 1}</td>
-                    <td className="player-cell">
-                      <img
-                        className="player-image"
+                <TableRow
+                  key={player.bbrID}
+                  hover
+                  className="clickable-row"
+                  onClick={() => handlePlayerClick(player.bbrID)}
+                >
+                  <TableCell>{(page - 1) * limit + index + 1}</TableCell>
+                  <TableCell>
+                    <Box className="player-cell">
+                      <Avatar
+                        alt={player.name}
                         src={`http://localhost:3000/player/icon/${player.headshot_icon}`}
-                        alt={`${player.name} headshot`}
-                        onError={(e) => { e.target.style.visibility = 'hidden'; }}
+                        sx={{ width: 50, height: 50 }}
+                        imgProps={{ onError: (e) => { e.target.style.visibility = "hidden"; } }}
                       />
-                      <span>{player.name}</span>
-                    </td>
-                    <td>{player.currentTeam}</td>
-                  </tr>
-
-                  {expandedPlayer === player.bbrID && (
-                    <tr className="expanded-row">
-                      <td colSpan="3">
-                        <div className="expanded-content">
-                          {seasonsData[player.bbrID]?.loading && <p>Loading seasons...</p>}
-                          {seasonsData[player.bbrID]?.error && <p>{seasonsData[player.bbrID].message}</p>}
-                          {seasonsData[player.bbrID]?.loaded && Array.isArray(seasonsData[player.bbrID].seasons) && (
-                             <ul className="seasons-list">
-                              {seasonsData[player.bbrID].seasons.map(season => (
-                                <li key={season.season} className="season-item">
-                                  <div className="season-header" onClick={() => handleSeasonClick(player.bbrID, season.season)}>
-                                    <strong>{season.season}</strong> - {season.team} - {season.position}
-                                  </div>
-                                  {expandedSeasons[player.bbrID]?.includes(season.season) && (
-                                    <div className="season-stats-details">
-                        
-                                      <StatsTable title="Per Game" stats={season.per_game} />
-                                      <StatsTable title="Totals" stats={season.totals} />
-                                      <StatsTable title="Advanced" stats={season.advanced} />
-                                      <StatsTable title="Per 100" stats={season.per100poss} />
-                                      <StatsTable title="Shooting" stats={season.shooting} />
-                                      
-                                    </div>
-                                  )}
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </Fragment>
+                      <span className="player-name-text">{player.name}</span>
+                    </Box>
+                  </TableCell>
+                  <TableCell>{player.currentTeam}</TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
 
-      <div className="pagination-controls">
-        <button onClick={handlePrev} disabled={page === 1 || loading}>Previous</button>
-        <span>Page {page}</span>
-        <button onClick={handleNext} disabled={!hasMore || loading}>Next</button>
-      </div>
-    </div>
+      {!loading && hasFewResults && <Box sx={{ flex: 1 }} />}
+      
+      <Box className="pagination-controls">
+        <Button variant="contained" onClick={handlePrev} disabled={page === 1 || loading}>
+          Previous
+        </Button>
+        <span className="pagination-page">Page {page}</span>
+        <Button variant="contained" onClick={handleNext} disabled={!hasMore || loading}>
+          Next
+        </Button>
+      </Box>
+    </Box>
   );
 }
 

@@ -64,3 +64,4 @@ export async function fetchPlayerSeasons(bbrID) {
   }
   return response.json();
 }
+

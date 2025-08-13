@@ -1,0 +1,420 @@
+.player-details-page {
+  padding: 2rem 1.5rem;
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-attachment: fixed;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.player-details-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.player-details-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+.back-button,
+.back-button-error,
+.back-button.MuiButton-root {
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 20px !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  border-radius: 25px !important;
+  cursor: pointer;
+  transition: all 0.3s ease !important;
+  text-transform: none !important;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+  margin-bottom: 2rem !important;
+}
+
+.back-button:hover,
+.back-button-error:hover,
+.back-button.MuiButton-root:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4) !important;
+  background: linear-gradient(135deg, #5a6fd8, #6b4c93) !important;
+}
+
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 3rem;
+  text-align: center;
+}
+
+.player-header-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.player-avatar-section {
+  flex-shrink: 0;
+}
+
+.player-image-wrapper {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  padding: 4px;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.player-profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+}
+
+.player-info-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.player-name {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 1rem !important;
+  color: #2d3748 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: -0.5px;
+}
+
+.player-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.stat-label {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  color: #718096 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  color: #2d3748 !important;
+}
+
+.team-chip,
+.team-chip.MuiChip-root {
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  padding: 0.3rem 0.8rem !important;
+  height: auto !important;
+}
+
+.seasons-section {
+  width: 100%;
+}
+
+.seasons-title {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 2rem !important;
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.5px;
+  text-align: center;
+}
+
+.seasons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.season-card,
+.season-card.MuiPaper-root {
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(15px);
+  border-radius: 15px !important;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+}
+
+.season-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2) !important;
+  border-color: rgba(102, 126, 234, 0.4);
+}
+
+.season-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+  background: rgba(102, 126, 234, 0.02);
+}
+
+.season-header:hover {
+  background: rgba(102, 126, 234, 0.08);
+}
+
+.season-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.season-year {
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
+  color: #2d3748 !important;
+  margin: 0 !important;
+}
+
+.season-details {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.season-team-chip,
+.season-team-chip.MuiChip-root {
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+}
+
+.season-position-chip,
+.season-position-chip.MuiChip-root {
+  border: 2px solid #667eea !important;
+  color: #667eea !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  background: transparent !important;
+}
+
+.toggle-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.season-header:hover .toggle-button {
+  background: rgba(102, 126, 234, 0.2);
+  transform: scale(1.1);
+}
+
+.stats-tables-container {
+  padding: 0 1.5rem 1.5rem;
+}
+
+.tables-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.stats-table,
+.stats-table.MuiPaper-root {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border: 1px solid rgba(102, 126, 234, 0.15) !important;
+  border-radius: 12px !important;
+  overflow-x: auto;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.stats-table:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15) !important;
+}
+
+.stats-table h4 {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  margin: 0;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.stats-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  table-layout: auto;
+  min-width: 100%;
+}
+
+.stats-table th,
+.stats-table td {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+}
+
+.stats-table th {
+  background: rgba(102, 126, 234, 0.05);
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.stats-table td {
+  color: #2d3748;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.stats-table tbody tr:hover {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+@media (max-width: 1024px) {
+  .player-details-page {
+    padding: 1.5rem 1rem;
+  }
+  
+  .player-header-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5rem;
+  }
+  
+  .player-stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+  }
+  
+  .tables-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .player-name {
+    font-size: 2rem !important;
+  }
+  
+  .seasons-title {
+    font-size: 1.5rem !important;
+  }
+  
+  .season-header {
+    padding: 1rem 1.5rem;
+  }
+  
+  .stats-tables-container {
+    padding: 0 1.5rem 1.5rem;
+  }
+  
+  .player-image-wrapper {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .player-details-page {
+    padding: 1rem 0.5rem;
+  }
+  
+  .player-header-section {
+    padding: 1.5rem;
+  }
+  
+  .season-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .player-stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.season-card {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.season-card,
+.stats-table {
+  will-change: transform;
+}

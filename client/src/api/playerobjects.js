@@ -2,6 +2,22 @@ const apiURL = "http://localhost:3000/";
 
 export const PLAYER_ICON_URL = `${apiURL}player/icon/`;
 
+export const fetchPlayer = async (bbrID) => {
+  try{
+    const response = await fetch(`${apiURL}players/${bbrID}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const player = await response.json();
+    return player;
+
+  } catch (error) {
+    console.log("Failed fetching playing object")
+  }
+};
+
 export const fetchAllPlayers = async () => {
   try {
   

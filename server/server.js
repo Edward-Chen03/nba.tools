@@ -331,6 +331,25 @@ app.get('/player/icon/:id', async (req, res) => {
 
 // Collections
 
+app.get("/players/:bbrID", async (req, res) => {
+  try {
+    const { bbrID } = req.params;
+    console.log(`Fetching player with bbrID: ${bbrID}...`);
+    
+    const player = await Player.findOne({ bbrID }).lean();
+    
+    if (!player) {
+      return res.status(404).send("Player not found.");
+    }
+
+    res.send(player);
+    console.log("Player data sent!");
+  } catch (err) {
+    console.error("Error fetching player:", err);
+    res.status(500).send("Failed to fetch player data.");
+  }
+});
+
 app.get("/players", async (req, res) => {
   try {
     console.log("Preparing Player Document Data...");

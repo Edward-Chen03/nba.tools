@@ -12,28 +12,30 @@ const StatsTable = ({ title, stats }) => {
   const statEntries = Object.entries(stats);
 
   return (
-    <div style={{ marginBottom: '1.5rem' }}>
+    <div className="stats-table">
       <Typography variant="h6" gutterBottom>{title}</Typography>
-      <TableContainer component={Paper}>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              {statEntries.map(([key]) => (
-                <TableCell key={key} align="center" style={{ fontWeight: 'bold' }}>
-                  {formatStatKey(key)}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <TableRow>
-              {statEntries.map(([key, value]) => (
-                <TableCell key={key} align="center">{value}</TableCell>
-              ))}
-            </TableRow>
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <div className="mui-table-wrapper">
+        <TableContainer component={Paper} className="mui-table-container">
+          <Table size="small" stickyHeader>
+            <TableHead>
+              <TableRow>
+                {statEntries.map(([key]) => (
+                  <TableCell key={key} align="center" style={{ fontWeight: 'bold' }}>
+                    {formatStatKey(key)}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow>
+                {statEntries.map(([key, value]) => (
+                  <TableCell key={key} align="center">{value}</TableCell>
+                ))}
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
     </div>
   );
 };

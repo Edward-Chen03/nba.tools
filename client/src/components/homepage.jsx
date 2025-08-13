@@ -1,10 +1,24 @@
 import { useState } from "react";
-import "./css/homepage.css";
+import {
+  Box,
+  Typography,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableContainer,
+  Paper,
+  Avatar,
+  Button,
+  CircularProgress,
+} from "@mui/material";
 import { useLeaderboardStats } from "../api/seasonstats";
+import "./css/homepage.css";
 
 function Homepage() {
   const [page, setPage] = useState(1);
-  const limit = 15;
+  const limit = 8;
   const { leaderboardStats, loading, hasMore } = useLeaderboardStats(page, limit);
 
   const handleNext = () => {
@@ -16,59 +30,68 @@ function Homepage() {
   };
 
   return (
-    <div className="homepage-container">
-      <h2>2024-25 Statistical Leaders</h2>
+    <Box className="homepage-container">
+      <Typography variant="h5" component="h2" className="homepage-heading">
+        2024–25 Statistical Leaders
+      </Typography>
+
       {loading ? (
-        <p>Loading...</p>
+        <Box className="loading-container">
+          <CircularProgress />
+        </Box>
       ) : (
-        <div className="leaderboard-table">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Player</th>
-                <th>Team</th>
-                <th>PTS</th>
-                <th>AST</th>
-                <th>TRB</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
+        <TableContainer component={Paper} className="leaderboard-table">
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell>#</TableCell>
+                <TableCell>Player</TableCell>
+                <TableCell>Team</TableCell>
+                <TableCell>PTS</TableCell>
+                <TableCell>AST</TableCell>
+                <TableCell>TRB</TableCell>
+                <TableCell>Total</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {leaderboardStats.map((player, index) => (
-                <tr key={player.player_bbrID}>
-                  <td>{(page - 1) * limit + index + 1}</td>
-                  <td>
-                    <div className="player-cell">
+                <TableRow key={player.player_bbrID} hover>
+                  <TableCell>{(page - 1) * limit + index + 1}</TableCell>
+                  <TableCell>
+                    <Box className="player-cell">
                       {player.playerObject.headshot_icon && (
-                        <img
-                          className="player-image"
+                        <Avatar
+                          alt={player.playerObject.name}
                           src={`http://localhost:3000/player/icon/${player.playerObject.headshot_icon}`}
-                          alt={`${player.playerObject.name} headshot`}
-                          onError={(e) => { e.target.style.visibility = 'hidden'; }}
+                          sx={{ width: 45, height: 45 }}
+                          imgProps={{ onError: (e) => (e.target.style.visibility = "hidden") }}
                         />
                       )}
                       <span className="player-name-text">{player.playerObject.name}</span>
-                    </div>
-                  </td>
-                  <td>{player.playerObject.currentTeam}</td>
-                  <td>{player.per_game?.pts}</td>
-                  <td>{player.per_game?.ast}</td>
-                  <td>{player.per_game?.trb}</td>
-                  <td>{player.totalContribution.toFixed(1)}</td>
-                </tr>
+                    </Box>
+                  </TableCell>
+                  <TableCell>{player.playerObject.currentTeam}</TableCell>
+                  <TableCell>{player.per_game?.pts}</TableCell>
+                  <TableCell>{player.per_game?.ast}</TableCell>
+                  <TableCell>{player.per_game?.trb}</TableCell>
+                  <TableCell>{player.totalContribution.toFixed(1)}</TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
 
-      <div className="pagination-controls">
-        <button onClick={handlePrev} disabled={page === 1}>Previous</button>
-        <span>Page {page}</span>
-        <button onClick={handleNext} disabled={!hasMore}>Next</button>
-      </div>
-    </div>
+      <Box className="pagination-controls">
+        <Button variant="contained" onClick={handlePrev} disabled={page === 1}>
+          Previous
+        </Button>
+        <span className="pagination-page">Page {page}</span>
+        <Button variant="contained" onClick={handleNext} disabled={!hasMore}>
+          Next
+        </Button>
+      </Box>
+    </Box>
   );
 }
 
