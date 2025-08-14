@@ -22,3 +22,11 @@ Specifications
 ## Installation
 
 If you would like to run this application locally, please download the repository and run npm install and then npm run dev in the client directory.
+
+## What I Learned
+
+- Database Design & Management: Designed and optimized MongoDB collections for complex NBA statistical data, implementing efficient schemas for player stats, team data, and historical performance metrics.
+
+- Interactive Data Visualization: Built dynamic, responsive charts and statistical dashboards using React and charting libraries, enabling users to create custom visualizations and explore multi-dimensional NBA data.
+
+- Machine Learning & Predictive Analytics: Developed and deployed a custom ML model for statistical probability prediction that assess the likelihood of players achieving specific performance benchmarks.
