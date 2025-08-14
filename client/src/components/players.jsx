@@ -138,7 +138,7 @@ function PlayersPage() {
 
   const renderLoadingState = () => (
     <Box className="loading-container">
-      <CircularProgress sx={{ color: '#ffffff' }} />
+      <CircularProgress />
     </Box>
   );
 
