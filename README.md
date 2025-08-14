@@ -1,13 +1,13 @@
 <h1 align="center"> NBA.Tools </h1> <br>
 <p align="center">
   <a href="">
-    
+  https://nba-tools.onrender.com
   </a>
 </p>
 
 ## Introduction
 
-IN-PROGRESS
+nba.tools is a comprehensive NBA analytics platform built with the MERN stack featuring  player statistics up to the 2024-25 season, customizable data visualizations, interactive comparison tools, and ML-powered probability predictions for player performance benchmarks.
 
 ## Features/Specifications
 
@@ -23,12 +23,4 @@ Specifications
 
 ## Installation
 
-IN-PROGRESS
-
-## Previews
-
-[TO BE ADDED]
-
-## NOTICE
-
-Provided statistics are in correspondence of https://www.basketball-reference.com/ and site data is updated everyday at 2:00 am EST
+If you would like to run this application locally, please download the repository and run npm install and then npm run dev in the client directory.

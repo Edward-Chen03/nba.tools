@@ -1,6 +1,6 @@
 export const predictPlayerOutcome = async ({ bbrID, season, statThresholds }) => {
   try {
-    const res = await fetch("http://localhost:3000/predict", {
+    const res = await fetch("https://nba-tools-server.onrender.com/predict", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

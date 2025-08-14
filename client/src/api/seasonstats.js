@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const apiURL = "http://localhost:3000/"
+const apiURL = "https://nba-tools-server.onrender.com/"
 
 export function useLeaderboardStats(page, limit) {
   const [leaderboardStats, setLeaderboard] = useState([]);

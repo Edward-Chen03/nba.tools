@@ -1,101 +1,440 @@
 .foresight-container {
-  display: flex;
-  flex-direction: column;
-  height: 93vh;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background-color: #f0f2f5;
-  color: #1c1e21;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 60px);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-attachment: fixed;
+    color: #1c1e21;
+    overflow-y: auto;
+    position: relative;
+}
+
+.foresight-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.foresight-container > * {
+    position: relative;
+    z-index: 1;
 }
 
 .stats-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #ffffff;
-  padding: 0 2rem;
-  border-bottom: 1px solid #dcdfe6;
-  flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .stats-header h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #0052cc;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2d3748;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    letter-spacing: -0.5px;
+    margin: 0;
 }
 
-.foresight-content {
-  flex-grow: 1;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 2rem;
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
-.prediction-panel {
-  background-color: #ffffff;
-  padding: 2rem;
-  border-radius: 8px;
-  border: 1px solid #dcdfe6;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  width: 100%;
-  max-width: 500px;
+.season-selector {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
+    color: #2d3748;
+    font-weight: 600;
+    font-size: 0.85rem;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.prediction-panel h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #0052cc;
-  text-align: center;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 1rem;
+.foresight-main-content {
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem;
+    min-height: 0;
+}
+
+.content-panel {
+    width: 100%;
+    max-width: 600px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.6s ease-out;
+}
+
+.foresight-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.foresight-form h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #2d3748;
+    text-align: center;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 1.5rem;
+    border-bottom: 3px solid rgba(102, 126, 234, 0.1);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+    border-radius: 12px;
+    padding: 1.5rem;
+    letter-spacing: -0.5px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
 }
 
 .input-group label {
-  font-weight: 600;
-  color: #333;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #4a5568;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.3rem;
 }
 
-.input-group select,
-.input-group input {
-  padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
+.input-group .css-control,
+.input-group .css-1s2u09g-control,
+.input-group .css-1pahdxg-control {
+    border: 2px solid rgba(102, 126, 234, 0.2) !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.3s ease !important;
+    min-height: 48px !important;
+}
+
+.input-group .css-control:hover,
+.input-group .css-1s2u09g-control:hover,
+.input-group .css-1pahdxg-control:hover {
+    border-color: rgba(102, 126, 234, 0.4) !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1) !important;
+}
+
+.input-group .css-control--is-focused,
+.input-group .css-1s2u09g-control--is-focused,
+.input-group .css-1pahdxg-control--is-focused {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+}
+
+.input-group .css-menu,
+.input-group .css-1n7v3ny-menu {
+    max-height: 300px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    z-index: 9999 !important;
+    border: 2px solid rgba(102, 126, 234, 0.2) !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+}
+
+.input-group .css-1hwfws3,
+.input-group .css-1hwfws3-menuList {
+    max-height: 300px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 0.5rem 0 !important;
+}
+
+.input-group .css-1n7v3ny-option,
+.input-group .css-yt9ioa-option {
+    padding: 0.75rem 1rem !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    border-radius: 8px !important;
+    margin: 0 0.5rem !important;
+}
+
+.input-group .css-1n7v3ny-option:hover,
+.input-group .css-yt9ioa-option:hover {
+    background: rgba(102, 126, 234, 0.1) !important;
+    color: #2d3748 !important;
+}
+
+.input-group .css-1n7v3ny-option--is-selected,
+.input-group .css-yt9ioa-option--is-selected {
+    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+    color: white !important;
+}
+
+.input-group input[type="number"] {
+    padding: 0.75rem 1rem;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    font-weight: 500;
+    color: #2d3748;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.input-group input[type="number"]:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: rgba(255, 255, 255, 1);
+}
+
+.input-group input[type="number"]:hover {
+    border-color: rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+}
+
+.input-group input[type="number"]::placeholder {
+    color: #a0aec0;
+    font-weight: 400;
 }
 
 .analyze-button-container {
-  border-top: 1px solid #dcdfe6;
-  padding-top: 1rem;
+    padding-top: 2rem;
+    border-top: 2px solid rgba(102, 126, 234, 0.1);
+    margin-top: 1rem;
 }
 
 .analyze-button-container button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.95rem;
-  width: 100%;
-  transition: background-color 0.2s ease-in-out;
+    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+    color: white !important;
+    border: none !important;
+    padding: 15px 24px !important;
+    border-radius: 15px !important;
+    cursor: pointer;
+    width: 100%;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+    text-transform: none !important;
+    letter-spacing: 0.5px;
 }
 
-.analyze-button-container button:hover {
-  background-color: #0056b3;
+.analyze-button-container button:hover:not(:disabled) {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4) !important;
+    background: linear-gradient(135deg, #5a6fd8, #6b4c93) !important;
 }
 
 .analyze-button-container button:disabled {
-  background-color: #dcdfe6;
-  color: #8a8d91;
-  cursor: not-allowed;
+    background: linear-gradient(135deg, #cbd5e0, #a0aec0) !important;
+    color: #6b7280 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.foresight-container .MuiCard-root {
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(15px);
+    border-radius: 20px !important;
+    border: 2px solid rgba(102, 126, 234, 0.15);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.3) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    position: relative;
+    margin-top: 2rem;
+}
+
+.foresight-container .MuiCard-root:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 35px 70px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(102, 126, 234, 0.2) !important;
+    border-color: rgba(102, 126, 234, 0.25);
+}
+
+.foresight-container .MuiCardContent-root {
+    padding: 2.5rem !important;
+    position: relative;
+    z-index: 1;
+}
+
+.foresight-container .MuiTypography-h5 {
+    color: #1a202c !important;
+    font-weight: 800 !important;
+    margin-bottom: 1.5rem !important;
+    font-size: 1.6rem !important;
+    text-align: center;
+    padding: 1rem 0;
+    border-bottom: 3px solid rgba(102, 126, 234, 0.1);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+    border-radius: 12px;
+    letter-spacing: -0.5px;
+}
+
+.foresight-container .MuiTypography-h6 {
+    color: #2d3748 !important;
+    font-weight: 700 !important;
+    margin: 1.5rem 0 1rem 0 !important;
+    font-size: 1.2rem !important;
+    padding: 0.75rem;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+    border-radius: 10px;
+    border: 1px solid rgba(102, 126, 234, 0.15);
+}
+
+.foresight-container .MuiTypography-subtitle1 {
+    color: #4a5568 !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.5rem !important;
+    font-size: 1rem !important;
+}
+
+.foresight-container .MuiTableContainer-root {
+    border-radius: 12px !important;
+    border: 2px solid rgba(102, 126, 234, 0.15) !important;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9)) !important;
+    backdrop-filter: blur(10px);
+}
+
+.foresight-container .MuiTableHead-root .MuiTableCell-root {
+    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+    color: white !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    padding: 1rem 1.5rem !important;
+    border: none !important;
+}
+
+.foresight-container .MuiTableBody-root .MuiTableRow-root {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-bottom: 1px solid rgba(102, 126, 234, 0.08) !important;
+}
+
+.foresight-container .MuiTableBody-root .MuiTableRow-root:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08)) !important;
+    transform: scale(1.01);
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
+}
+
+.foresight-container .MuiTableBody-root .MuiTableRow-root:nth-child(even) {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.02), rgba(118, 75, 162, 0.02)) !important;
+}
+
+.foresight-container .MuiTableCell-root {
+    color: #2d3748 !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1.5rem !important;
+    border: none !important;
+}
+
+.foresight-container .MuiGrid-item {
+    padding: 0.5rem !important;
+}
+
+.foresight-container .MuiGrid-item .MuiTypography-root {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(102, 126, 234, 0.1);
+    transition: all 0.2s ease;
+}
+
+.foresight-container .MuiGrid-item .MuiTypography-root:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+}
+
+@media (max-width: 768px) {
+    .stats-header {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .stats-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .foresight-main-content {
+        padding: 1rem;
+    }
+    
+    .content-panel {
+        padding: 1.5rem;
+        border-radius: 15px;
+    }
+    
+    .foresight-form h2 {
+        font-size: 1.5rem;
+        padding: 1rem;
+    }
+    
+    .foresight-container .MuiCardContent-root {
+        padding: 1.5rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .season-selector {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .input-group label {
+        font-size: 0.8rem;
+    }
+    
+    .analyze-button-container button {
+        padding: 12px 18px !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .foresight-container .MuiTableCell-root {
+        padding: 0.5rem !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.content-panel {
+    will-change: transform;
 }

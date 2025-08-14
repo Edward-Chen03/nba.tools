@@ -1,46 +1,54 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchPlayerSeasons } from "../api/seasonstats";
-import { fetchPlayer } from "../api/playerobjects";
+import { fetchPlayer, PLAYER_ICON_URL } from "../api/playerobjects";
 import StatsTable from "./def/playertables";
 import "./css/playerprofile.css";
 import { Box, Paper, Typography, Button, CircularProgress, Chip } from "@mui/material";
 
+const LINEUP_TYPES = ['2man', '3man', '4man', '5man'];
+const SEASON_TYPES = ['reg', 'post'];
+
+const GAME_LOG_HEADERS = [
+    'Date', 'Opponent', 'Home/Away', 'Result', 'Started', 'MIN', 'FG', 'FGA', 'FG%',
+    '3P', '3PA', '3P%', 'FT', 'FTA', 'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL',
+    'BLK', 'TOV', 'PF', 'PTS', '+/-', 'GmSc'
+];
+
 function ProfilePage() {
     const { bbrID } = useParams();
     const navigate = useNavigate();
+
     const [seasons, setSeasons] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [playerInfo, setPlayerInfo] = useState(null);
+    const [initialLoad, setInitialLoad] = useState(true);
+  
     const [expandedSeasons, setExpandedSeasons] = useState({});
     const [expandedOnOff, setExpandedOnOff] = useState({});
     const [expandedLineups, setExpandedLineups] = useState({});
     const [expandedLineupSeasons, setExpandedLineupSeasons] = useState({});
     const [expandedGames, setExpandedGames] = useState({});
-    const [initialLoad, setInitialLoad] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             setInitialLoad(true);
+            
             try {
-                const response = await fetchPlayerSeasons(bbrID);
-                const playerProfile = await fetchPlayer(bbrID);
-                setSeasons(response.seasons || []);
-                console.log(playerProfile)
-                if (response.seasons?.length > 0) {
-                    setPlayerInfo({
-                        name: playerProfile.name || "Player",
-                        headshot: playerProfile.headshot_icon || "",
-                        colleges: [playerProfile.colleges],
-                        team: playerProfile.currentTeam,
-                        age: Math.floor((new Date() - new Date(playerProfile.birthDate)) / (365.25 * 24 * 60 * 60 * 1000)),
-                        height: `${Math.floor(playerProfile.height / 12)}'${playerProfile.height % 12}"`,
-                        weight: `${playerProfile.weight} lbs`,
-                    });
+                const [seasonsResponse, playerProfile] = await Promise.all([
+                    fetchPlayerSeasons(bbrID),
+                    fetchPlayer(bbrID)
+                ]);
+
+                setSeasons(seasonsResponse.seasons || []);
+                
+                if (seasonsResponse.seasons?.length > 0) {
+                    setPlayerInfo(createPlayerInfo(playerProfile));
                 }
             } catch (err) {
+                console.error("Error fetching player data:", err);
                 setError("Failed to load player data.");
             } finally {
                 setLoading(false);
@@ -48,9 +56,228 @@ function ProfilePage() {
             }
         };
 
-        fetchData();
+        if (bbrID) {
+            fetchData();
+        }
     }, [bbrID]);
 
+    const createPlayerInfo = (playerProfile) => {
+        const calculateAge = (birthDate) => {
+            if (!birthDate) return null;
+            return Math.floor((new Date() - new Date(birthDate)) / (365.25 * 24 * 60 * 60 * 1000));
+        };
+
+        const formatHeight = (height) => {
+            if (!height) return null;
+            return `${Math.floor(height / 12)}'${height % 12}"`;
+        };
+
+        const formatWeight = (weight) => {
+            return weight ? `${weight} lbs` : null;
+        };
+
+        return {
+            name: playerProfile.name || "Player",
+            headshot: playerProfile.headshot_icon || "",
+            colleges: playerProfile.colleges || "N/A",
+            team: playerProfile.currentTeam || "N/A",
+            age: calculateAge(playerProfile.birthDate),
+            height: formatHeight(playerProfile.height),
+            weight: formatWeight(playerProfile.weight),
+        };
+    };
+
+    const createToggleFunction = (setter) => (key) => {
+        setter(prev => ({ ...prev, [key]: !prev[key] }));
+    };
+
+    const toggleSeason = createToggleFunction(setExpandedSeasons);
+    const toggleOnOff = createToggleFunction(setExpandedOnOff);
+    const toggleLineups = createToggleFunction(setExpandedLineups);
+    const toggleGames = createToggleFunction(setExpandedGames);
+
+    const toggleLineupSeason = (seasonIndex, seasonType) => {
+        const key = `${seasonIndex}-${seasonType}`;
+        setExpandedLineupSeasons(prev => ({ ...prev, [key]: !prev[key] }));
+    };
+
+    const formatGameStat = (value, type = 'number') => {
+        if (value === null || value === undefined) return '0';
+        
+        switch (type) {
+            case 'percentage':
+                return typeof value === 'number' ? value.toFixed(3) : '0.000';
+            case 'decimal':
+                return typeof value === 'number' ? value.toFixed(1) : '0.0';
+            case 'time':
+                return value || '0:00';
+            default:
+                return value.toString();
+        }
+    };
+
+    const calculateFreeThrowPercentage = (ft, fta) => {
+        if (!fta || fta === 0) return '0.000';
+        return (ft / fta).toFixed(3);
+    };
+
+    const getGameResultClass = (result) => {
+        return result && result.startsWith('W') ? 'win' : 'loss';
+    };
+
+    const getPlusMinusClass = (plusMinus) => {
+        return parseFloat(plusMinus || 0) >= 0 ? 'positive' : 'negative';
+    };
+
+    const renderGameLogRow = (game, gameIndex) => (
+        <tr key={gameIndex}>
+            <td>{game.date || 'N/A'}</td>
+            <td>{game.opponent || 'N/A'}</td>
+            <td>
+                <span className={`home-away-indicator ${game.home === '@' ? 'home' : 'away'}`}>
+                    {game.home === '@' ? 'Home' : 'Away'}
+                </span>
+            </td>
+            <td>
+                <span className={`game-result ${getGameResultClass(game.result)}`}>
+                    {game.result || 'N/A'}
+                </span>
+            </td>
+            <td>
+                <span className={`started-indicator ${game.started ? 'started' : 'bench'}`}>
+                    {game.started ? 'Started' : 'Bench'}
+                </span>
+            </td>
+            <td>{formatGameStat(game.mp, 'time')}</td>
+            <td>{formatGameStat(game.fg)}</td>
+            <td>{formatGameStat(game.fga)}</td>
+            <td>{formatGameStat(game.fgp, 'percentage')}</td>
+            <td>{formatGameStat(game.threep)}</td>
+            <td>{formatGameStat(game.threepa)}</td>
+            <td>{formatGameStat(game.threepap, 'percentage')}</td>
+            <td>{formatGameStat(game.ft)}</td>
+            <td>{formatGameStat(game.fta)}</td>
+            <td>{calculateFreeThrowPercentage(game.ft, game.fta)}</td>
+            <td>{formatGameStat(game.orb)}</td>
+            <td>{formatGameStat(game.drb)}</td>
+            <td>{formatGameStat(game.trb)}</td>
+            <td>{formatGameStat(game.ast)}</td>
+            <td>{formatGameStat(game.stl)}</td>
+            <td>{formatGameStat(game.blk)}</td>
+            <td>{formatGameStat(game.tov)}</td>
+            <td>{formatGameStat(game.pf)}</td>
+            <td>{formatGameStat(game.pts)}</td>
+            <td>
+                <span className={`plus-minus ${getPlusMinusClass(game.plus_minus)}`}>
+                    {game.plus_minus || '0'}
+                </span>
+            </td>
+            <td>{formatGameStat(game.gmsc, 'decimal')}</td>
+        </tr>
+    );
+
+    const renderStatsTable = (data, title) => {
+        if (!data || data.length === 0) return null;
+
+        const headers = Object.keys(data[0]);
+        
+        return (
+            <div>
+                <Typography variant="h6" className="stats-section-title">
+                    {title}
+                </Typography>
+                <div className="stats-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                {headers.map(key => (
+                                    <th key={key}>{key.replace(/_/g, ' ').toUpperCase()}</th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {data.map((row, rowIndex) => (
+                                <tr key={rowIndex}>
+                                    {Object.values(row).map((value, colIndex) => (
+                                        <td key={colIndex}>{value}</td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+    };
+
+    const renderExpandableSection = (title, isExpanded, onToggle, children, count = null) => (
+        <Box className="expandable-section">
+            <Box className="expandable-header" onClick={onToggle}>
+                <Typography variant="h6" className="expandable-title">
+                    {title} {count && `(${count})`}
+                </Typography>
+                <Box className="expandable-toggle">
+                    {isExpanded ? "▲" : "▼"}
+                </Box>
+            </Box>
+            {isExpanded && (
+                <Box className="expandable-content">
+                    {children}
+                </Box>
+            )}
+        </Box>
+    );
+
+    const renderLineupSection = (seasonIndex, seasonType, lineups) => {
+        const key = `${seasonIndex}-${seasonType}`;
+        const title = `${seasonType === 'post' ? 'Post' : 'Regular'} Season Lineups`;
+        
+        return (
+            <Box className="lineup-season-section" key={seasonType}>
+                <Box 
+                    className="lineup-season-header"
+                    onClick={() => toggleLineupSeason(seasonIndex, seasonType)}
+                >
+                    <Typography variant="h6" className="lineup-season-title">
+                        {title}
+                    </Typography>
+                    <Box className="lineup-season-toggle">
+                        {expandedLineupSeasons[key] ? "▲" : "▼"}
+                    </Box>
+                </Box>
+                
+                {expandedLineupSeasons[key] && (
+                    <Box className="lineup-season-content">
+                        {LINEUP_TYPES.map(lineupType => {
+                            const lineupData = lineups[lineupType];
+                            if (!lineupData || lineupData.length === 0) return null;
+
+                            return (
+                                <Box key={lineupType} className="lineup-type-section">
+                                    <Box className="lineup-type-header-static">
+                                        <Typography variant="subtitle1" className="lineup-type-title">
+                                            {lineupType.charAt(0).toUpperCase() + lineupType.slice(1)} Lineups
+                                        </Typography>
+                                    </Box>
+                                    <Box className="lineup-table-container">
+                                        {renderStatsTable(lineupData, '')}
+                                    </Box>
+                                </Box>
+                            );
+                        })}
+                    </Box>
+                )}
+            </Box>
+        );
+    };
+
+    const hasLineupData = (lineups, seasonType) => {
+        return lineups?.[seasonType] && LINEUP_TYPES.some(type => 
+            lineups[seasonType][type] && lineups[seasonType][type].length > 0
+        );
+    };
+
+    // Loading and error states
     if (initialLoad || loading || !playerInfo) {
         return (
             <div className="player-details-page loading-page">
@@ -83,42 +310,6 @@ function ProfilePage() {
         );
     }
 
-    const toggleSeason = (index) => {
-        setExpandedSeasons((prev) => ({
-            ...prev,
-            [index]: !prev[index],
-        }));
-    };
-
-    const toggleOnOff = (seasonIndex) => {
-        setExpandedOnOff((prev) => ({
-            ...prev,
-            [seasonIndex]: !prev[seasonIndex],
-        }));
-    };
-
-    const toggleLineups = (seasonIndex) => {
-        setExpandedLineups((prev) => ({
-            ...prev,
-            [seasonIndex]: !prev[seasonIndex],
-        }));
-    };
-
-    const toggleLineupSeason = (seasonIndex, seasonType) => {
-        const key = `${seasonIndex}-${seasonType}`;
-        setExpandedLineupSeasons((prev) => ({
-            ...prev,
-            [key]: !prev[key],
-        }));
-    };
-
-    const toggleGames = (seasonIndex) => {
-        setExpandedGames((prev) => ({
-            ...prev,
-            [seasonIndex]: !prev[seasonIndex],
-        }));
-    };
-
     return (
         <div className="player-details-page">
             <Button 
@@ -136,7 +327,7 @@ function ProfilePage() {
                         <div className="player-image-wrapper">
                             <img
                                 className="player-profile-image"
-                                src={`http://localhost:3000/player/icon/${playerInfo.headshot}`}
+                                src={`${PLAYER_ICON_URL}${playerInfo.headshot}`}
                                 alt={`${playerInfo.name} headshot`}
                                 onError={(e) => { e.target.style.display = 'none'; }}
                             />
@@ -153,7 +344,7 @@ function ProfilePage() {
                         <Box className="stat-item">
                             <Typography variant="body2" className="stat-label">Team</Typography>
                             <Chip 
-                                label={playerInfo.team || "N/A"} 
+                                label={playerInfo.team} 
                                 className="team-chip"
                                 variant="filled"
                             />
@@ -183,7 +374,7 @@ function ProfilePage() {
                         <Box className="stat-item">
                             <Typography variant="body2" className="stat-label">College</Typography>
                             <Typography variant="body1" className="stat-value">
-                                {playerInfo.colleges || "N/A"}
+                                {playerInfo.colleges}
                             </Typography>
                         </Box>
                     </Box>
@@ -237,352 +428,79 @@ function ProfilePage() {
                                             <StatsTable title="Shooting" stats={season.shooting} />
                                         </Box>
 
-                                        {season.games && season.games.length > 0 && (
-                                            <Box className="expandable-section">
-                                                <Box 
-                                                    className="expandable-header"
-                                                    onClick={() => toggleGames(index)}
-                                                >
-                                                    <Typography variant="h6" className="expandable-title">
-                                                        Game Log ({season.games.length} games)
-                                                    </Typography>
-                                                    <Box className="expandable-toggle">
-                                                        {expandedGames[index] ? "▲" : "▼"}
-                                                    </Box>
-                                                </Box>
+                                        {season.games && season.games.length > 0 && 
+                                            renderExpandableSection(
+                                                "Game Log",
+                                                expandedGames[index],
+                                                () => toggleGames(index),
+                                                <Box className="games-table-container">
+                                                    <div className="stats-table">
+                                                        <table>
+                                                            <thead>
+                                                                <tr>
+                                                                    {GAME_LOG_HEADERS.map(header => (
+                                                                        <th key={header}>{header}</th>
+                                                                    ))}
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {season.games.map(renderGameLogRow)}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </Box>,
+                                                `${season.games.length} games`
+                                            )
+                                        }
 
-                                                {expandedGames[index] && (
-                                                    <Box className="expandable-content">
-                                                        <Box className="games-table-container">
-                                                            <div className="stats-table">
-                                                                <table>
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>Date</th>
-                                                                            <th>Opponent</th>
-                                                                            <th>Home/Away</th>
-                                                                            <th>Result</th>
-                                                                            <th>Started</th>
-                                                                            <th>MIN</th>
-                                                                            <th>FG</th>
-                                                                            <th>FGA</th>
-                                                                            <th>FG%</th>
-                                                                            <th>3P</th>
-                                                                            <th>3PA</th>
-                                                                            <th>3P%</th>
-                                                                            <th>FT</th>
-                                                                            <th>FTA</th>
-                                                                            <th>FT%</th>
-                                                                            <th>ORB</th>
-                                                                            <th>DRB</th>
-                                                                            <th>TRB</th>
-                                                                            <th>AST</th>
-                                                                            <th>STL</th>
-                                                                            <th>BLK</th>
-                                                                            <th>TOV</th>
-                                                                            <th>PF</th>
-                                                                            <th>PTS</th>
-                                                                            <th>+/-</th>
-                                                                            <th>GmSc</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        {season.games.map((game, gameIndex) => (
-                                                                            <tr key={gameIndex}>
-                                                                                <td>{game.date || 'N/A'}</td>
-                                                                                <td>{game.opponent || 'N/A'}</td>
-                                                                                <td>
-                                                                                    <span className={`home-away-indicator ${game.home === '@' ? 'home' : 'away'}`}>
-                                                                                        {game.home === '@' ? 'Home' : 'Away'}
-                                                                                    </span>
-                                                                                </td>
-                                                                                <td>
-                                                                                    <span className={`game-result ${game.result && game.result.startsWith('W') ? 'win' : 'loss'}`}>
-                                                                                        {game.result || 'N/A'}
-                                                                                    </span>
-                                                                                </td>
-                                                                                <td>
-                                                                                    <span className={`started-indicator ${game.started ? 'started' : 'bench'}`}>
-                                                                                        {game.started ? 'Started' : 'Bench'}
-                                                                                    </span>
-                                                                                </td>
-                                                                                <td>{game.mp || '0:00'}</td>
-                                                                                <td>{game.fg !== null && game.fg !== undefined ? game.fg : '0'}</td>
-                                                                                <td>{game.fga !== null && game.fga !== undefined ? game.fga : '0'}</td>
-                                                                                <td>{game.fgp !== null && game.fgp !== undefined ? game.fgp.toFixed(3) : '0.000'}</td>
-                                                                                <td>{game.threep !== null && game.threep !== undefined ? game.threep : '0'}</td>
-                                                                                <td>{game.threepa !== null && game.threepa !== undefined ? game.threepa : '0'}</td>
-                                                                                <td>{game.threepap !== null && game.threepap !== undefined ? game.threepap.toFixed(3) : '0.000'}</td>
-                                                                                <td>{game.ft !== null && game.ft !== undefined ? game.ft : '0'}</td>
-                                                                                <td>{game.fta !== null && game.fta !== undefined ? game.fta : '0'}</td>
-                                                                                <td>
-                                                                                    {(() => {
-                                                                                        const ft = game.ft || 0;
-                                                                                        const fta = game.fta || 0;
-                                                                                        if (fta === 0) return '0.000';
-                                                                                        return (ft / fta).toFixed(3);
-                                                                                    })()}
-                                                                                </td>
-                                                                                <td>{game.orb !== null && game.orb !== undefined ? game.orb : '0'}</td>
-                                                                                <td>{game.drb !== null && game.drb !== undefined ? game.drb : '0'}</td>
-                                                                                <td>{game.trb !== null && game.trb !== undefined ? game.trb : '0'}</td>
-                                                                                <td>{game.ast !== null && game.ast !== undefined ? game.ast : '0'}</td>
-                                                                                <td>{game.stl !== null && game.stl !== undefined ? game.stl : '0'}</td>
-                                                                                <td>{game.blk !== null && game.blk !== undefined ? game.blk : '0'}</td>
-                                                                                <td>{game.tov !== null && game.tov !== undefined ? game.tov : '0'}</td>
-                                                                                <td>{game.pf !== null && game.pf !== undefined ? game.pf : '0'}</td>
-                                                                                <td>{game.pts !== null && game.pts !== undefined ? game.pts : '0'}</td>
-                                                                                <td>
-                                                                                    <span className={`plus-minus ${parseFloat(game.plus_minus || 0) >= 0 ? 'positive' : 'negative'}`}>
-                                                                                        {game.plus_minus || '0'}
-                                                                                    </span>
-                                                                                </td>
-                                                                                <td>{game.gmsc !== null ? game.gmsc.toFixed(1) : '0.0'}</td>
-                                                                            </tr>
-                                                                        ))}
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </Box>
-                                                    </Box>
-                                                )}
-                                            </Box>
-                                        )}
+                                        {season.onoff && season.onoff.length > 0 &&
+                                            renderExpandableSection(
+                                                "On/Off Court Stats",
+                                                expandedOnOff[index],
+                                                () => toggleOnOff(index),
+                                                <>
+                                                    {season.onoff[0]?.post && season.onoff[0].post.length > 0 &&
+                                                        renderStatsTable(season.onoff[0].post, "Post Season On/Off")
+                                                    }
+                                                    {season.onoff[0]?.reg && season.onoff[0].reg.length > 0 &&
+                                                        renderStatsTable(season.onoff[0].reg, "Regular Season On/Off")
+                                                    }
+                                                </>
+                                            )
+                                        }
 
-                                        {season.onoff && season.onoff.length > 0 && (
-                                            <Box className="expandable-section">
-                                                <Box 
-                                                    className="expandable-header"
-                                                    onClick={() => toggleOnOff(index)}
-                                                >
-                                                    <Typography variant="h6" className="expandable-title">
-                                                        On/Off Court Stats
-                                                    </Typography>
-                                                    <Box className="expandable-toggle">
-                                                        {expandedOnOff[index] ? "▲" : "▼"}
-                                                    </Box>
-                                                </Box>
-
-                                                {expandedOnOff[index] && (
-                                                    <Box className="expandable-content">
-
-                                                        {season.onoff[0] && season.onoff[0].post && season.onoff[0].post.length > 0 && (
-                                                            <div>
-                                                                <Typography variant="h6" className="stats-section-title">
-                                                                    Post Season On/Off
+                                        {season.lineups && season.lineups.length > 0 &&
+                                            renderExpandableSection(
+                                                "Lineup Statistics",
+                                                expandedLineups[index],
+                                                () => toggleLineups(index),
+                                                (() => {
+                                                    const hasPostLineups = hasLineupData(season.lineups[0], 'post');
+                                                    const hasRegLineups = hasLineupData(season.lineups[0], 'reg');
+                                                    
+                                                    if (!hasPostLineups && !hasRegLineups) {
+                                                        return (
+                                                            <Box className="no-lineups-message">
+                                                                <Typography variant="body1" className="no-data-text">
+                                                                    No lineups found for this season.
                                                                 </Typography>
-                                                                <div className="stats-table">
-                                                                    <table>
-                                                                        <thead>
-                                                                            <tr>
-                                                                                {Object.keys(season.onoff[0].post[0]).map(key => (
-                                                                                    <th key={key}>{key.replace(/_/g, ' ').toUpperCase()}</th>
-                                                                                ))}
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            {season.onoff[0].post.map((row, rowIndex) => (
-                                                                                <tr key={rowIndex}>
-                                                                                    {Object.values(row).map((value, colIndex) => (
-                                                                                        <td key={colIndex}>{value}</td>
-                                                                                    ))}
-                                                                                </tr>
-                                                                            ))}
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                            </div>
-                                                        )}
-
-                                                        {season.onoff[0] && season.onoff[0].reg && season.onoff[0].reg.length > 0 && (
-                                                            <div>
-                                                                <Typography variant="h6" className="stats-section-title">
-                                                                    Regular Season On/Off
-                                                                </Typography>
-                                                                <div className="stats-table">
-                                                                    <table>
-                                                                        <thead>
-                                                                            <tr>
-                                                                                {Object.keys(season.onoff[0].reg[0]).map(key => (
-                                                                                    <th key={key}>{key.replace(/_/g, ' ').toUpperCase()}</th>
-                                                                                ))}
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            {season.onoff[0].reg.map((row, rowIndex) => (
-                                                                                <tr key={rowIndex}>
-                                                                                    {Object.values(row).map((value, colIndex) => (
-                                                                                        <td key={colIndex}>{value}</td>
-                                                                                    ))}
-                                                                                </tr>
-                                                                            ))}
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </Box>
-                                                )}
-                                            </Box>
-                                        )}
-
-                 
-                                        {season.lineups && season.lineups.length > 0 && (
-                                            <Box className="expandable-section">
-                                                <Box 
-                                                    className="expandable-header"
-                                                    onClick={() => toggleLineups(index)}
-                                                >
-                                                    <Typography variant="h6" className="expandable-title">
-                                                        Lineup Statistics
-                                                    </Typography>
-                                                    <Box className="expandable-toggle">
-                                                        {expandedLineups[index] ? "▲" : "▼"}
-                                                    </Box>
-                                                </Box>
-
-                                                {expandedLineups[index] && (
-                                                    <Box className="expandable-content">
-
-                                                        {(() => {
-                                                            const hasPostLineups = season.lineups[0]?.post && 
-                                                                ['2man', '3man', '4man', '5man'].some(type => 
-                                                                    season.lineups[0].post[type] && season.lineups[0].post[type].length > 0
-                                                                );
-                                                            const hasRegLineups = season.lineups[0]?.reg && 
-                                                                ['2man', '3man', '4man', '5man'].some(type => 
-                                                                    season.lineups[0].reg[type] && season.lineups[0].reg[type].length > 0
-                                                                );
-                                                            
-                                                            if (!hasPostLineups && !hasRegLineups) {
-                                                                return (
-                                                                    <Box className="no-lineups-message">
-                                                                        <Typography variant="body1" className="no-data-text">
-                                                                            No lineups found for this season.
-                                                                        </Typography>
-                                                                    </Box>
-                                                                );
+                                                            </Box>
+                                                        );
+                                                    }
+                                                    
+                                                    return (
+                                                        <>
+                                                            {hasPostLineups && 
+                                                                renderLineupSection(index, 'post', season.lineups[0].post)
                                                             }
-                                                            
-                                                            return (
-                                                                <>
-                                    
-                                                                    {hasPostLineups && (
-                                                                        <Box className="lineup-season-section">
-                                                                            <Box 
-                                                                                className="lineup-season-header"
-                                                                                onClick={() => toggleLineupSeason(index, 'post')}
-                                                                            >
-                                                                                <Typography variant="h6" className="lineup-season-title">
-                                                                                    Post Season Lineups
-                                                                                </Typography>
-                                                                                <Box className="lineup-season-toggle">
-                                                                                    {expandedLineupSeasons[`${index}-post`] ? "▲" : "▼"}
-                                                                                </Box>
-                                                                            </Box>
-                                                                            
-                                                                            {expandedLineupSeasons[`${index}-post`] && (
-                                                                                <Box className="lineup-season-content">
-                                                                                    {['2man', '3man', '4man', '5man'].map(lineupType => (
-                                                                                        season.lineups[0].post[lineupType] && season.lineups[0].post[lineupType].length > 0 && (
-                                                                                            <Box key={lineupType} className="lineup-type-section">
-                                                                                                <Box className="lineup-type-header-static">
-                                                                                                    <Typography variant="subtitle1" className="lineup-type-title">
-                                                                                                        {lineupType.charAt(0).toUpperCase() + lineupType.slice(1)} Lineups
-                                                                                                    </Typography>
-                                                                                                </Box>
-                                                                                                
-                                                                                                <Box className="lineup-table-container">
-                                                                                                    <div className="stats-table">
-                                                                                                        <table>
-                                                                                                            <thead>
-                                                                                                                <tr>
-                                                                                                                    {Object.keys(season.lineups[0].post[lineupType][0]).map(key => (
-                                                                                                                        <th key={key}>{key.replace(/_/g, ' ').toUpperCase()}</th>
-                                                                                                                    ))}
-                                                                                                                </tr>
-                                                                                                            </thead>
-                                                                                                            <tbody>
-                                                                                                                {season.lineups[0].post[lineupType].map((row, rowIndex) => (
-                                                                                                                    <tr key={rowIndex}>
-                                                                                                                        {Object.values(row).map((value, colIndex) => (
-                                                                                                                            <td key={colIndex}>{value}</td>
-                                                                                                                        ))}
-                                                                                                                    </tr>
-                                                                                                                ))}
-                                                                                                            </tbody>
-                                                                                                        </table>
-                                                                                                    </div>
-                                                                                                </Box>
-                                                                                            </Box>
-                                                                                        )
-                                                                                    ))}
-                                                                                </Box>
-                                                                            )}
-                                                                        </Box>
-                                                                    )}
-
-                                                                    {hasRegLineups && (
-                                                                        <Box className="lineup-season-section">
-                                                                            <Box 
-                                                                                className="lineup-season-header"
-                                                                                onClick={() => toggleLineupSeason(index, 'reg')}
-                                                                            >
-                                                                                <Typography variant="h6" className="lineup-season-title">
-                                                                                    Regular Season Lineups
-                                                                                </Typography>
-                                                                                <Box className="lineup-season-toggle">
-                                                                                    {expandedLineupSeasons[`${index}-reg`] ? "▲" : "▼"}
-                                                                                </Box>
-                                                                            </Box>
-                                                                            
-                                                                            {expandedLineupSeasons[`${index}-reg`] && (
-                                                                                <Box className="lineup-season-content">
-                                                                                    {['2man', '3man', '4man', '5man'].map(lineupType => (
-                                                                                        season.lineups[0].reg[lineupType] && season.lineups[0].reg[lineupType].length > 0 && (
-                                                                                            <Box key={lineupType} className="lineup-type-section">
-                                                                                                <Box className="lineup-type-header-static">
-                                                                                                    <Typography variant="subtitle1" className="lineup-type-title">
-                                                                                                        {lineupType.charAt(0).toUpperCase() + lineupType.slice(1)} Lineups
-                                                                                                    </Typography>
-                                                                                                </Box>
-                                                                                                
-                                                                                                <Box className="lineup-table-container">
-                                                                                                    <div className="stats-table">
-                                                                                                        <table>
-                                                                                                            <thead>
-                                                                                                                <tr>
-                                                                                                                    {Object.keys(season.lineups[0].reg[lineupType][0]).map(key => (
-                                                                                                                        <th key={key}>{key.replace(/_/g, ' ').toUpperCase()}</th>
-                                                                                                                    ))}
-                                                                                                                </tr>
-                                                                                                            </thead>
-                                                                                                            <tbody>
-                                                                                                                {season.lineups[0].reg[lineupType].map((row, rowIndex) => (
-                                                                                                                    <tr key={rowIndex}>
-                                                                                                                        {Object.values(row).map((value, colIndex) => (
-                                                                                                                            <td key={colIndex}>{value}</td>
-                                                                                                                        ))}
-                                                                                                                    </tr>
-                                                                                                                ))}
-                                                                                                            </tbody>
-                                                                                                        </table>
-                                                                                                    </div>
-                                                                                                </Box>
-                                                                                            </Box>
-                                                                                        )
-                                                                                    ))}
-                                                                                </Box>
-                                                                            )}
-                                                                        </Box>
-                                                                    )}
-                                                                </>
-                                                            );
-                                                        })()}
-                                                    </Box>
-                                                )}
-                                            </Box>
-                                        )}
+                                                            {hasRegLineups && 
+                                                                renderLineupSection(index, 'reg', season.lineups[0].reg)
+                                                            }
+                                                        </>
+                                                    );
+                                                })()
+                                            )
+                                        }
                                     </Box>
                                 )}
                             </Paper>

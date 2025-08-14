@@ -12,7 +12,6 @@ html, body, #root {
   background-color: #fff;
 }
 
-/* Homepage-specific non-scrollable styling */
 .app.homepage-route {
   height: 100vh;
   overflow: hidden;
@@ -72,7 +71,6 @@ html, body, #root {
   position: relative; 
 }
 
-/* Homepage-specific body content styling */
 .body-content.homepage-content {
   overflow: hidden;
   height: calc(100vh - 60px);
