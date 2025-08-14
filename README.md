@@ -1,8 +1,6 @@
 <h1 align="center"> NBA.Tools </h1> <br>
 <p align="center">
-  <a href="https://nba-tools.onrender.com">
-    <img src="client/public/nbatoolslogo.png" alt="NBA Tools" />
-  </a>
+https://nba-tools.onrender.com
 </p>
 
 ## Introduction
