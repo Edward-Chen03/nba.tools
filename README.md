@@ -1,6 +1,8 @@
 <h1 align="center"> NBA.Tools </h1> <br>
 <p align="center">
 https://nba-tools.onrender.com
+  
+NOTE: The application may take a few minutes to load due to server uptime restrictions, please be patient. 
 </p>
 
 ## Introduction
