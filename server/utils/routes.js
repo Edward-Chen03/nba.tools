@@ -18,7 +18,7 @@ router.get('/players/:bbrID/seasons', getPlayerSeasons)
 
 const {getCustomStats} = require('../components/explorerpage.js')
 
-router.get('/customstats', getCustomStats)
+router.post('/customstats', getCustomStats)
 
 // Foresightpage Routes
 
