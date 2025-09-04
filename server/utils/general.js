@@ -1,10 +1,14 @@
 let Player = require('../model/player.js')
 let Season = require('../model/seasons.js')
+const { ObjectId } = require('mongodb'); 
+const { getGfsBucket, getPlayerIconsDb } = require('../config.js');
 
 const getPlayerIcons = async (req, res) => {
   try {
     const fileId = new ObjectId(req.params.id);
-
+    const playerIconsDb = getPlayerIconsDb(); 
+    const gfsBucket = getGfsBucket();
+    
     const file = await playerIconsDb.collection('images.files').findOne({ _id: fileId });
     if (!file) {
       return res.status(404).send('Image not found');

@@ -24,7 +24,7 @@ router.get('/customstats', getCustomStats)
 
 const {getPrediction} = require('../components/foresightpage.js')
 
-router.get('/predict', getPrediction)
+router.post('/predict', getPrediction)
 
 // General
 

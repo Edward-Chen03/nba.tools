@@ -1,8 +1,9 @@
 const { mongoose } = require('mongoose')
-const { MongoClient, ServerApiVersion, ObjectId, GridFSBucket } = require('mongodb');
+const { MongoClient, ServerApiVersion, GridFSBucket } = require('mongodb');
 const uri = process.env.NBAMONGO;
 
 let gfsBucket;
+let playerIconsDb;
 
 const connectDB = async () => {
     await mongoose.connect(uri)
@@ -35,4 +36,4 @@ const connectGridFS = async () => {
 }
 
 
-module.exports = { connectDB, connectGridFS }
+module.exports = { connectDB, connectGridFS, getGfsBucket: () => gfsBucket,getPlayerIconsDb: () => playerIconsDb}
